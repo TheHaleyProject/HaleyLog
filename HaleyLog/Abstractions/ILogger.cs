@@ -19,7 +19,8 @@ namespace Haley.Abstractions
         string Info(string message, string property_name = null);
         string Warn(string message, string property_name = null);
         string Debug(string message, string property_name = null);
-
+        string Error(string message, string property_name = null);
+        string Exception(Exception exception, string comments = null, string property_name = null);
         #endregion
 
         #region memLog
