@@ -204,15 +204,23 @@ namespace Haley.Log
         #region Direct Logs
         public string Info(string message, string property_name = null)
         {
-            return log(message, MessageType.information, property_name, true, false);
+            return log(message, MessageType.information, property_name);
         }
         public string Warn(string message, string property_name = null)
         {
-            return log(message, MessageType.warning, property_name, true, false);
+            return log(message, MessageType.warning, property_name);
+        }
+        public string Error(string message, string property_name = null)
+        {
+            return log(message, MessageType.error, property_name);
         }
         public string Debug(string message, string property_name = null)
         {
-            return log(message, MessageType.debug, property_name, true, false);
+            return log(message, MessageType.debug, property_name);
+        }
+        public string Exception(Exception exception, string comments = null, string property_name = null)
+        {
+            return log(exception,comments,property_name);
         }
 
         #endregion
