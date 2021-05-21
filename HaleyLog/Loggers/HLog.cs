@@ -199,7 +199,67 @@ namespace Haley.Log
                 memoryStore.Clear();
             }
         }
-       
+        #endregion
+
+        #region Direct Logs
+        public string Info(string message, string property_name = null)
+        {
+            return log(message, MessageType.information, property_name, true, false);
+        }
+        public string Warn(string message, string property_name = null)
+        {
+            return log(message, MessageType.warning, property_name, true, false);
+        }
+        public string Debug(string message, string property_name = null)
+        {
+            return log(message, MessageType.debug, property_name, true, false);
+        }
+
+        #endregion
+
+        #region memLog
+        public string memLog(string message, MessageType msg_type = MessageType.information, string property_name = null)
+        {
+            return log(message, msg_type, property_name, true, false);
+        }
+        public string memLog(Exception exception, string comments = null, string property_name = null)
+        {
+            return log(exception, comments, property_name, true, false);
+        }
+        public string memLog(string key, string value, string comments = null, string property_name = null)
+        {
+            return log(key, value, comments, property_name, true, false);
+        }
+        #endregion
+
+        #region subLog
+        public string subLog(string message, MessageType msg_type = MessageType.information, string property_name = null)
+        {
+            return log(message, msg_type, property_name, false, true);
+        }
+        public string subLog(Exception exception, string comments = null, string property_name = null)
+        {
+            return log(exception, comments, property_name, false, true);
+        }
+        public string subLog(string key, string value, string comments = null, string property_name = null)
+        {
+            return log(key, value, comments, property_name, false, true);
+        }
+        #endregion
+
+        #region memSubLog
+        public string memSubLog(string message, MessageType msg_type = MessageType.information, string property_name = null)
+        {
+            return log(message, msg_type, property_name, true, true);
+        }
+        public string memSubLog(Exception exception, string comments = null, string property_name = null)
+        {
+            return log(exception, comments, property_name, true, true);
+        }
+        public string memSubLog(string key, string value, string comments = null, string property_name = null)
+        {
+            return log(key, value, comments, property_name, true, true);
+        }
         #endregion
 
         #region Initiations

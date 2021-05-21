@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Text;
 using Haley.Enums;
 using Haley.Log.Writers;
-using System;
 using System.IO;
 using System.Linq;
 
