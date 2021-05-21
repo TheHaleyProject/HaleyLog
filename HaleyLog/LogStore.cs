@@ -32,7 +32,7 @@ namespace Haley.Log
         {
                 if(_loggers.ContainsKey(key))
                 {
-                    ILogger _result = null;
+                     ILogger _result = null;
                     _loggers.TryGetValue(key, out _result);
                     return _result;
                 }

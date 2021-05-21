@@ -8,7 +8,7 @@ using Haley.Utils;
 
 namespace Haley.Abstractions
 {
-    public abstract class LoggerBase : ILogger
+    public abstract class LoggerBase : ILoggerBase
     {
         protected bool is_memory_log { get; }
         protected string output_path { get; set; }

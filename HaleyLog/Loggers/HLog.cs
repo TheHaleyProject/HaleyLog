@@ -15,7 +15,7 @@ using Haley.Enums;
 
 namespace Haley.Log
 {
-    public sealed class HLog : LoggerBase
+    public sealed class HLog : LoggerBase, ILogger
     {
         #region ATTRIBUTES
         private const string SUBLOGKEY = "SUBLOG_PLACEHOLDER";
@@ -151,6 +151,21 @@ namespace Haley.Log
             return _kvpLog.Id;
         }
 
+        /// <summary>
+        /// Forced Memory Dump Method which dumps the memorystore data into file and then clears it
+        /// </summary>
+        public override void dumpMemory() //Should dump into wherever file that we write
+        {
+            lock (memoryStore)
+            {
+                if (!is_memory_log) //Write only if it is not a memory log.
+                {
+                    _writer.write(memoryStore.ToList());
+                }
+                clearMemoryStore();
+            }
+        }
+
         #endregion
 
         #region Public Methods
@@ -184,22 +199,6 @@ namespace Haley.Log
                 memoryStore.Clear();
             }
         }
-
-        /// <summary>
-        /// Forced Memory Dump Method which dumps the memorystore data into file and then clears it
-        /// </summary>
-        public override void dumpMemory() //Should dump into wherever file that we write
-        {
-            lock(memoryStore)
-            {
-                if (!is_memory_log) //Write only if it is not a memory log.
-                {
-                    _writer.write(memoryStore.ToList());
-                }
-                clearMemoryStore();
-            }
-        }
-
        
         #endregion
 
