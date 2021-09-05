@@ -12,9 +12,9 @@
 	<Company>Haley Project</Company>
 	<Product>Logger</Product>
 	<Description>A simple logger based on .Net Standard to integrate in C# projects. Helps to export the log to different formats including txt, json, xml</Description>
-	<Version>1.0.6.2</Version>
+	<Version>1.0.7</Version>
 	<AssemblyVersion>1.0.6.2</AssemblyVersion>
-	<PackageReleaseNotes>Updated Interfaces</PackageReleaseNotes>
+	<PackageReleaseNotes>Changed logo</PackageReleaseNotes>
 	<FileVersion>1.0.6.2</FileVersion>
 	<PackageIcon>Haley.png</PackageIcon>
 	  <IncludeSymbols>true</IncludeSymbols>
