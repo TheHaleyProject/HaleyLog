@@ -6,67 +6,86 @@ using Haley.Abstractions;
 using Haley.Enums;
 using Haley.Models;
 using Haley.Utils;
+using Microsoft.Extensions.Logging;
+
 
 namespace Haley.Log
 {
-    public sealed class LogStore
+    public static class LogStore
     {
-        private ConcurrentDictionary<string, IHLogger> _loggers = new ConcurrentDictionary<string, IHLogger>();
+        private static ConcurrentDictionary<string, IHLogger> _loggers = new ConcurrentDictionary<string, IHLogger>();
 
-        public IHLogger BaseLog { get; set; } //This is the singleton logger to be used.
-        private static bool _initiated = false;
-        private  static LogStore _singleton;
-        public static LogStore Singleton 
-        { 
-            get 
-            {
-                if (!_initiated)
-                {
-                    _initiated = true;// We have initiated the singleton.
-                    //Default logger will happen in the base directory.
-                    //_singleton.BaseLog = new HLog(); //Setup Hlog as the first log.
-                }
-                return _singleton; 
-            } 
+        private static IHLogger defaultLogger = new FileLogger("HLOG", LogLevel.Information, OutputType.Text_simple);
+        public static IHLogger Logger => defaultLogger; //This is the singleton logger to be used.
+
+        public static IHLogger CreateLogger(Enum key, IHLogger logger)
+        {
+            string _key = key.getKey();
+            return CreateLogger(_key, logger);
         }
 
-        public static LogStore CreateSingleton(IHLogger sourceLog)
+        public static IHLogger CreateLogger(string key, IHLogger logger)
         {
-            if (!_initiated)
+            if (!_loggers.ContainsKey(key))
             {
-                _singleton.BaseLog = sourceLog;
-                _initiated = true;
+                _loggers.TryAdd(key, logger);
             }
-            return _singleton;
-        }
-        public IHLogger logger(Enum @enum)
-        {
-            string _key = @enum.getKey();
-            return logger(_key);
+            return _loggers[key];
         }
 
-        public IHLogger logger(string key)
+        public static IHLogger GetLogger(Enum key)
         {
-                if(_loggers.ContainsKey(key))
-                {
-                     IHLogger _result = null;
-                    _loggers.TryGetValue(key, out _result);
-                    return _result;
-                }
+            return GetLogger(key.getKey());
+        }
+
+        public static IHLogger GetLogger(string key)
+        {
+            if (_loggers.ContainsKey(key)) return _loggers[key];
             return null;
         }
 
-        public bool AddLog(IHLogger source,Enum @enum)
+        public static IHLogger GetOrAddLogger(Enum key,string loggerName = "HLog")
         {
-            return AddLog(source, @enum.getKey());
+            return GetOrAddLogger(key.getKey());
+        }
+        public static IHLogger GetOrAddLogger(string key, string loggerName = "HLog")
+        {
+            var _logger = GetLogger(key);
+            if (_logger == null)
+            {
+                _logger = CreateLogger(key, new FileLogger(loggerName ?? "HLog", LogLevel.Information, OutputType.Text_simple));
+            }
+            return _logger;
         }
 
-        public bool AddLog(IHLogger source,  string key)
+        public static void ChangeAllLogLevels(LogLevel logLevel)
         {
-            if (_loggers.ContainsKey(key)) return false;
-            return _loggers.TryAdd(key, source);
+            //this changes log level of all the internal loggers.
+            foreach (var logger in _loggers)
+            {
+                if (logger.Value is HLoggerBase hbase)
+                {
+                    hbase.SetAllowedLevel(logLevel);
+                }
+            }
         }
 
-        public LogStore() { }
+        public static void ChangeLoggerLevel(Enum key, LogLevel logLevel)
+        {
+            ChangeLoggerLevel(key.getKey(), logLevel); 
         }
+
+        public static void ChangeLoggerLevel(string key, LogLevel logLevel)
+        {
+            if (_loggers.ContainsKey(key))
+            {
+                if (_loggers[key] is HLoggerBase hlog)
+                {
+                    hlog.SetAllowedLevel(logLevel);
+                }
+            }
+        }
+
     }
+        
+}

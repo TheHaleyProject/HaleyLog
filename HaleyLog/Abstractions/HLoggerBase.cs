@@ -7,7 +7,6 @@ using System.Reflection;
 using Haley.Utils;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using Haley.Models;
 
 namespace Haley.Abstractions
 {
@@ -15,6 +14,10 @@ namespace Haley.Abstractions
     {
         public string Name { get; }
         public LogLevel AllowedLevel { get; protected set; }
+        internal protected void SetAllowedLevel(LogLevel newLevel)
+        {
+            AllowedLevel = newLevel;
+        }
         #region DebugMethods
         public void Debug(string message, string title = null)
         {
