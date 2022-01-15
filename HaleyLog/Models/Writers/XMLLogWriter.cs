@@ -19,8 +19,7 @@ namespace Haley.Models
         public XMLLogWriter(string file_location, string file_name) : base(file_location, file_name, "xml") { }
 
         #region Private Methods
-        private const string ROOTNAME = "HLOG";
-        private const string DEFAULTELEMENT = "SUBLOG_HOLDER";
+        private const string ROOTNAME = "LoggerBase";
         private XDocument _getXDocument()
         {
             try
@@ -68,9 +67,9 @@ namespace Haley.Models
 
         #region Overridden Methods
 
-        public override object Convert(List<LogData> memoryData)
+        public override object Convert(List<LogData> datalist)
         {
-            return _convert(memoryData);
+            return _convert(datalist);
         }
 
         public override object Convert(LogData data)
@@ -86,19 +85,8 @@ namespace Haley.Models
                 //Get Xdocument and the root element.
                 XDocument xdoc = _getXDocument();
                 XElement xroot = _getRoot(xdoc);
-                XElement input_node = (XElement)Convert(data, is_sub);
-
-                if (is_sub)
-                {
-                    //if sub, find the last node and add to it.
-                    if (xroot.Elements().Count() == 0) { xroot.Add(new XElement(DEFAULTELEMENT)); }
-                    XElement target_node = xroot.Elements()?.Last(); //By default get the last node
-                    target_node.Add(input_node);
-                }
-                else
-                {
-                    xroot.Add(input_node); //if not sub, add to the root
-                }
+                XElement input_node = (XElement)Convert(data);
+                xroot.Add(input_node); //if not sub, add to the root
                 xdoc.Save(outputFilePath);
             }
             catch (Exception ex)
@@ -107,28 +95,17 @@ namespace Haley.Models
             }
         }
 
-        public override void Write(List<LogData> memoryData)
+        public override void Write(List<LogData> datalist)
         {
-            if (memoryData.Count == 0) return; //Don't proceed for empty list
+            if (datalist.Count == 0) return; //Don't proceed for empty list
             //If sub, read the xml and get the last node and add everything as sub.
             try
             {
                 //Get Xdocument and the root element.
                 XDocument xdoc = _getXDocument();
                 XElement xroot = _getRoot(xdoc);
-                var _input_nodes = ((XElement)Convert(memoryData)).Elements();
-
-                if (is_sub)
-                {
-                    //if sub, find the last node and add to it.
-                    if (xroot.Elements().Count() == 0) { xroot.Add(new XElement(DEFAULTELEMENT)); }
-                    XElement target_node = xroot.Elements()?.Last(); //By default get the last node
-                    target_node.Add(_input_nodes);
-                }
-                else
-                {
-                    xroot.Add(_input_nodes); //if not sub, add to the root
-                }
+                var _input_nodes = ((XElement)Convert(datalist)).Elements();
+                xroot.Add(_input_nodes); //if not sub, add to the root
                 xdoc.Save(outputFilePath);
             }
             catch (Exception ex)

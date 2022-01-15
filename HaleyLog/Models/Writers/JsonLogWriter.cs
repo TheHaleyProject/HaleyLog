@@ -12,12 +12,12 @@ using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Reflection;
+using Haley.Utils;
 
 namespace Haley.Models
 {
     internal class JSONLogWriter : LogWriterBase
     {
-        private const string SUBLOGKEY = "SUBLOG_HOLDER";
         JsonSerializerOptions _options = null;
         public JSONLogWriter(string file_location, string file_name) : base(file_location, file_name , "json") {
             if (_options == null)
@@ -25,21 +25,21 @@ namespace Haley.Models
                 _options = new JsonSerializerOptions()
                 {
                     WriteIndented = true,
-                    IgnoreNullValues = true
                 };
                 _options.Converters.Add(new JsonStringEnumConverter());
+                _options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             }
         }
 
 
         private object _convert(object source)
         {
-            return JsonSerializer.Serialize(source, source.GetType(), _options);
+            return source.ToJson();
         }
 
         public override object Convert(List<LogData> dataList)
         {
-            return _convert(memoryData);
+            return _convert(dataList);
         }
 
         public override object Convert(LogData data)
@@ -52,7 +52,7 @@ namespace Haley.Models
         {
             List<LogData> _towriteList = new List<LogData>();
             _towriteList.Add(data);
-            Write(_towriteList, is_sub);
+            Write(_towriteList);
         }
 
         public override void Write(List<LogData> dataList)
@@ -64,21 +64,8 @@ namespace Haley.Models
                 string _parent_json = File.ReadAllText(outputFilePath);
                 target_list = JsonSerializer.Deserialize<List<LogData>>(_parent_json, _options);
             }
-            if (is_sub)
-            {
-                //If it is sub, then the memorydata goes into the last node.
-                if (target_list.Count == 0)
-                {
-                    //If target doens't have any data, then add a new one
-                    target_list.Add(new LogData() {Title = SUBLOGKEY,TimeStamp = DateTime.UtcNow });
-                }
-                target_list.Last().Children.AddRange(memoryData);
-            }
-            else
-            {
-                target_list.AddRange(memoryData);
-            }
-            string _towrite = (string)Convert(target_list, is_sub);
+                target_list.AddRange(dataList);
+            string _towrite = (string)Convert(target_list);
             File.WriteAllText(outputFilePath, _towrite);
         }
     }
