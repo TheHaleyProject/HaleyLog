@@ -38,33 +38,33 @@ namespace Haley.Abstractions
         #endregion
 
         #region DebugMethods
-        public string debug(string message, string property_name = null, bool in_memory = false, bool is_sub = false)
+        public string Debug(string message, string property_name = null, bool in_memory = false, bool is_sub = false)
         {
             if (Assembly.GetEntryAssembly().IsDebugBuild())
             {
-                return log(message, MessageType.debug, property_name, in_memory, is_sub);
+                return Log(message, MessageType.Debug, property_name, in_memory, is_sub);
             }
             else
             {
                 return null;
             }
         }
-        public string debug(Exception exception, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false)
+        public string Debug(Exception exception, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false)
         {
             if (Assembly.GetEntryAssembly().IsDebugBuild())
             {
-                return log(exception, comments, property_name, in_memory, is_sub);
+                return Log(exception, comments, property_name, in_memory, is_sub);
             }
             else
             {
                 return null;
             }
         }
-        public string debug(string key, string value, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false)
+        public string Debug(string key, string value, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false)
         {
             if (Assembly.GetEntryAssembly().IsDebugBuild())
             {
-                return log(key, value, comments, property_name, in_memory, is_sub);
+                return Log(key, value, comments, property_name, in_memory, is_sub);
             }
             else
             {
@@ -74,13 +74,13 @@ namespace Haley.Abstractions
         #endregion
 
         #region Main Abstractions
-        public abstract string log(string message, MessageType msg_type = MessageType.information, string property_name = null, bool in_memory = false, bool is_sub = false);
-        public abstract string log(Exception exception, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false);
-        public abstract string log(string key, string value, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false);
+        public abstract string Log(string message, MessageType msg_type = MessageType.Information, string property_name = null, bool in_memory = false, bool is_sub = false);
+        public abstract string Log(Exception exception, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false);
+        public abstract string Log(string key, string value, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false);
 
-        public abstract void dumpMemory();
+        public abstract void DumpMemory();
 
-        public string getDirectory()
+        public string GetDirectory()
         {
             if (is_memory_log) return null;
             return output_path;
@@ -118,13 +118,13 @@ namespace Haley.Abstractions
             _writer = new SimpleTextWriter(output_path, output_file_name);
             switch (output_type)
             {
-                case OutputType.json:
+                case OutputType.Json:
                     _writer = new JSONLogWriter(output_path, output_file_name);
                     break;
-                case OutputType.xml:
+                case OutputType.Xml:
                     _writer = new XMLLogWriter(output_path, output_file_name);
                     break;
-                case OutputType.txt_detailed:
+                case OutputType.Text_detailed:
                     _writer = new DetailedTextLogWriter(output_path, output_file_name);
                     break;
             }

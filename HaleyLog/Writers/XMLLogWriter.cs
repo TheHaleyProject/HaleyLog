@@ -68,17 +68,17 @@ namespace Haley.Log.Writers
 
         #region Overridden Methods
 
-        public override object convert(List<LogBase> memoryData, bool is_sub = false)
+        public override object Convert(List<LogBase> memoryData, bool is_sub = false)
         {
             return _convert(memoryData);
         }
 
-        public override object convert(LogBase data, bool is_sub = false)
+        public override object Convert(LogBase data, bool is_sub = false)
         {
             return _convert(data);
         }
 
-        public override void write(LogBase data, bool is_sub = false)
+        public override void Write(LogBase data, bool is_sub = false)
         {
             //If sub, read the xml and get the last node and add everything as sub.
             try
@@ -86,7 +86,7 @@ namespace Haley.Log.Writers
                 //Get Xdocument and the root element.
                 XDocument xdoc = _getXDocument();
                 XElement xroot = _getRoot(xdoc);
-                XElement input_node = (XElement)convert(data, is_sub);
+                XElement input_node = (XElement)Convert(data, is_sub);
 
                 if (is_sub)
                 {
@@ -107,7 +107,7 @@ namespace Haley.Log.Writers
             }
         }
 
-        public override void write(List<LogBase> memoryData, bool is_sub = false)
+        public override void Write(List<LogBase> memoryData, bool is_sub = false)
         {
             if (memoryData.Count == 0) return; //Don't proceed for empty list
             //If sub, read the xml and get the last node and add everything as sub.
@@ -116,7 +116,7 @@ namespace Haley.Log.Writers
                 //Get Xdocument and the root element.
                 XDocument xdoc = _getXDocument();
                 XElement xroot = _getRoot(xdoc);
-                var _input_nodes = ((XElement)convert(memoryData)).Elements();
+                var _input_nodes = ((XElement)Convert(memoryData)).Elements();
 
                 if (is_sub)
                 {

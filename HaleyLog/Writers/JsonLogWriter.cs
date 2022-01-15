@@ -37,25 +37,25 @@ namespace Haley.Log.Writers
             return JsonSerializer.Serialize(source, source.GetType(), _options);
         }
 
-        public override object convert(List<LogBase> memoryData, bool is_sub = false)
+        public override object Convert(List<LogBase> memoryData, bool is_sub = false)
         {
             return _convert(memoryData);
         }
 
-        public override object convert(LogBase data, bool is_sub = false)
+        public override object Convert(LogBase data, bool is_sub = false)
         {
             return _convert(data);
         }
 
 
-        public override void write(LogBase data, bool is_sub = false)
+        public override void Write(LogBase data, bool is_sub = false)
         {
             List<LogBase> _towriteList = new List<LogBase>();
             _towriteList.Add(data);
-            write(_towriteList, is_sub);
+            Write(_towriteList, is_sub);
         }
 
-        public override void write(List<LogBase> memoryData, bool is_sub = false)
+        public override void Write(List<LogBase> memoryData, bool is_sub = false)
         {
             List<LogBase> target_list = new List<LogBase>();
             //Now try to get the existing file and see if it has any data.
@@ -78,7 +78,7 @@ namespace Haley.Log.Writers
             {
                 target_list.AddRange(memoryData);
             }
-            string _towrite = (string)convert(target_list, is_sub);
+            string _towrite = (string)Convert(target_list, is_sub);
             File.WriteAllText(file_name, _towrite);
         }
     }

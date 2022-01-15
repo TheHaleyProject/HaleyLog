@@ -25,7 +25,7 @@ namespace Haley.Log
         #endregion
 
         #region Private Build Methods
-        private LogBase _buildInfo(string message, string prop_name, MessageType msg_type = MessageType.information)
+        private LogBase _buildInfo(string message, string prop_name, MessageType msg_type = MessageType.Information)
         {
             LogBase _result = new LogBase();
             _result.Name = prop_name ?? string.Empty;
@@ -44,7 +44,7 @@ namespace Haley.Log
             _result.ExceptionMessage = _exception.Message;
             _result.Message = comments ?? string.Empty;
             _result.TimeStamp = DateTime.UtcNow;
-            _result.MessageType = MessageType.exception;
+            _result.MessageType = MessageType.Exception;
             return _result;
         }
 
@@ -56,7 +56,7 @@ namespace Haley.Log
             _result.Key = key;
             _result.Value = value;
             _result.TimeStamp = DateTime.UtcNow;
-            _result.MessageType = MessageType.property;
+            _result.MessageType = MessageType.Property;
             return _result;
         }
         #endregion
@@ -65,7 +65,7 @@ namespace Haley.Log
         private void _autoDump()
         {
                 if (!should_auto_dump) return; //No further validation required.
-                if (_memoryStoreCount(memoryStore.ToList()) > auto_dump_count) dumpMemory();
+                if (_memoryStoreCount(memoryStore.ToList()) > auto_dump_count) DumpMemory();
         }
 
         private int _memoryStoreCount(List<LogBase> source)
@@ -112,9 +112,9 @@ namespace Haley.Log
                 else
                 {
                 //If it is not in memory, then we should dump whatever in memory irrespective of the count.
-                if (memoryStore.Count > 0) dumpMemory();
+                if (memoryStore.Count > 0) DumpMemory();
 
-                _writer.write(input, is_sub); //writing directly using the writer
+                _writer.Write(input, is_sub); //writing directly using the writer
                 }
             }
      }
@@ -130,21 +130,21 @@ namespace Haley.Log
         /// <param name="property_name">Some associated property name</param>
         /// <param name="in_memory">If false, the data is written directly on to the file. If true, the date is stored in memory until dumped.</param>
         /// <returns>GUID value of the log messgae</returns>
-        public override string log(string message, MessageType msg_type = MessageType.information, string property_name = null, bool in_memory = false, bool is_sub = false)
+        public override string Log(string message, MessageType msg_type = MessageType.Information, string property_name = null, bool in_memory = false, bool is_sub = false)
         {
             LogBase _infoLog = _buildInfo(message, property_name, msg_type);
             _log(_infoLog, in_memory,is_sub);
             return _infoLog.Id;
         }
 
-        public override string log(Exception exception, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false)
+        public override string Log(Exception exception, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false)
         {
             LogBase _exceptionLog = _buildException(exception, property_name, comments);
             _log(_exceptionLog, in_memory, is_sub);
             return _exceptionLog.Id;
         }
 
-        public override string log(string key, string value, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false)
+        public override string Log(string key, string value, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false)
         {
             LogBase _kvpLog = _buildKVP(key, value, property_name,comments);
             _log(_kvpLog, in_memory, is_sub);
@@ -154,15 +154,15 @@ namespace Haley.Log
         /// <summary>
         /// Forced Memory Dump Method which dumps the memorystore data into file and then clears it
         /// </summary>
-        public override void dumpMemory() //Should dump into wherever file that we write
+        public override void DumpMemory() //Should dump into wherever file that we write
         {
             lock (memoryStore)
             {
                 if (!is_memory_log) //Write only if it is not a memory log.
                 {
-                    _writer.write(memoryStore.ToList());
+                    _writer.Write(memoryStore.ToList());
                 }
-                clearMemoryStore();
+                ClearMemoryStore();
             }
         }
 
@@ -170,7 +170,7 @@ namespace Haley.Log
 
         #region Public Methods
 
-        public List<ILog> getMemoryStore()
+        public List<ILog> GetMemoryStore()
         {
             lock(memoryStore)
             {
@@ -182,17 +182,17 @@ namespace Haley.Log
         /// This uses the writer and converts the memory store in to its respective format and returns the object
         /// </summary>
         /// <returns></returns>
-        public object getConvertedMemoryStore()
+        public object GetConvertedMemoryStore()
         {
             lock (memoryStore)
             {
             //this should use the converter to convert it to respective object and return it accordingly
             //The consumer sould take the responsibility to cast it accordingly
-            return _writer.convert(memoryStore.ToList());
+            return _writer.Convert(memoryStore.ToList());
             }
         }
 
-        public void clearMemoryStore()
+        public void ClearMemoryStore()
         {
             lock(memoryStore)
             {
@@ -204,69 +204,69 @@ namespace Haley.Log
         #region Direct Logs
         public string Info(string message, string property_name = null)
         {
-            return log(message, MessageType.information, property_name);
+            return Log(message, MessageType.Information, property_name);
         }
         public string Warn(string message, string property_name = null)
         {
-            return log(message, MessageType.warning, property_name);
+            return Log(message, MessageType.Warning, property_name);
         }
         public string Error(string message, string property_name = null)
         {
-            return log(message, MessageType.error, property_name);
+            return Log(message, MessageType.Error, property_name);
         }
         public string Debug(string message, string property_name = null)
         {
-            return log(message, MessageType.debug, property_name);
+            return Log(message, MessageType.Debug, property_name);
         }
         public string Exception(Exception exception, string comments = null, string property_name = null)
         {
-            return log(exception,comments,property_name);
+            return Log(exception,comments,property_name);
         }
 
         #endregion
 
         #region memLog
-        public string memLog(string message, MessageType msg_type = MessageType.information, string property_name = null)
+        public string MemLog(string message, MessageType msg_type = MessageType.Information, string property_name = null)
         {
-            return log(message, msg_type, property_name, true, false);
+            return Log(message, msg_type, property_name, true, false);
         }
-        public string memLog(Exception exception, string comments = null, string property_name = null)
+        public string MemLog(Exception exception, string comments = null, string property_name = null)
         {
-            return log(exception, comments, property_name, true, false);
+            return Log(exception, comments, property_name, true, false);
         }
-        public string memLog(string key, string value, string comments = null, string property_name = null)
+        public string MemLog(string key, string value, string comments = null, string property_name = null)
         {
-            return log(key, value, comments, property_name, true, false);
+            return Log(key, value, comments, property_name, true, false);
         }
         #endregion
 
         #region subLog
-        public string subLog(string message, MessageType msg_type = MessageType.information, string property_name = null)
+        public string SubLog(string message, MessageType msg_type = MessageType.Information, string property_name = null)
         {
-            return log(message, msg_type, property_name, false, true);
+            return Log(message, msg_type, property_name, false, true);
         }
-        public string subLog(Exception exception, string comments = null, string property_name = null)
+        public string SubLog(Exception exception, string comments = null, string property_name = null)
         {
-            return log(exception, comments, property_name, false, true);
+            return Log(exception, comments, property_name, false, true);
         }
-        public string subLog(string key, string value, string comments = null, string property_name = null)
+        public string SubLog(string key, string value, string comments = null, string property_name = null)
         {
-            return log(key, value, comments, property_name, false, true);
+            return Log(key, value, comments, property_name, false, true);
         }
         #endregion
 
         #region memSubLog
-        public string memSubLog(string message, MessageType msg_type = MessageType.information, string property_name = null)
+        public string MemSubLog(string message, MessageType msg_type = MessageType.Information, string property_name = null)
         {
-            return log(message, msg_type, property_name, true, true);
+            return Log(message, msg_type, property_name, true, true);
         }
-        public string memSubLog(Exception exception, string comments = null, string property_name = null)
+        public string MemSubLog(Exception exception, string comments = null, string property_name = null)
         {
-            return log(exception, comments, property_name, true, true);
+            return Log(exception, comments, property_name, true, true);
         }
-        public string memSubLog(string key, string value, string comments = null, string property_name = null)
+        public string MemSubLog(string key, string value, string comments = null, string property_name = null)
         {
-            return log(key, value, comments, property_name, true, true);
+            return Log(key, value, comments, property_name, true, true);
         }
         #endregion
 

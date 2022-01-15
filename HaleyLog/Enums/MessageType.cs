@@ -4,11 +4,11 @@ namespace Haley.Enums
 {
     public enum MessageType
     {
-        information = 0,
-        warning,
-        error,
-        property,
-        exception,
-        debug
+        Information = 0,
+        Warning,
+        Error,
+        Property,
+        Exception,
+        Debug
     }
 }

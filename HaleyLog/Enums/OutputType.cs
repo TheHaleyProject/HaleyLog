@@ -4,9 +4,9 @@ namespace Haley.Enums
 {
     public enum OutputType
     {
-        txt_simple,
-        txt_detailed,
-        xml,
-        json
+        Text_simple,
+        Text_detailed,
+        Xml,
+        Json
     }
 }

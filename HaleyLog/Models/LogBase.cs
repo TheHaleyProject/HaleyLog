@@ -40,24 +40,4 @@ namespace Haley.Models
         #endregion
         public LogBase() { Id = Guid.NewGuid().ToString(); Children = new List<LogBase>(); }
     }
-
-    [XmlRoot("Property")]
-    public class DictionaryLog : LogBase
-    {
-        [XmlAttribute(AttributeName = "Key")]
-        public string Key { get; set; }
-        [XmlAttribute(AttributeName = "Value")]
-        public string Value { get; set; }
-    }
-
-    [XmlRoot("Exception")]
-    public class ExceptionLog : LogBase
-    {
-        [XmlElement(ElementName = "Source")]
-        public string Source { get; set; }
-        [XmlElement(ElementName = "Trace")]
-        public string Trace { get; set; }
-        [XmlElement(ElementName = "Exception")]
-        public string ExceptionMessage { get; set; }
-    }
 }

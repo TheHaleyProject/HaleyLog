@@ -4,9 +4,9 @@ namespace Haley.Enums
 {
     public enum LogType
     {
-        app,
-        user,
-        config,
-        history,
+        App,
+        User,
+        Config,
+        History,
     }
 }

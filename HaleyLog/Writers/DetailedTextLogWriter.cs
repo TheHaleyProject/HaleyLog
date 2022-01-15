@@ -11,37 +11,37 @@ namespace Haley.Log.Writers
     {
         public DetailedTextLogWriter(string file_location, string file_name) : base(file_location, file_name, "txt") { }
 
-        public override void write(LogBase data, bool is_sub = false)
+        public override void Write(LogBase data, bool is_sub = false)
         {
-            string _towrite = (string)convert(data, is_sub);
+            string _towrite = (string)Convert(data, is_sub);
             using (StreamWriter swriter = File.AppendText(file_name))
             {
                 swriter.WriteLine(_towrite);
             }
         }
-        public override void write(List<LogBase> memoryData, bool is_sub = false)
+        public override void Write(List<LogBase> memoryData, bool is_sub = false)
         {
-            string _towrite = (string)convert(memoryData, is_sub);
+            string _towrite = (string)Convert(memoryData, is_sub);
             using (StreamWriter swriter = File.AppendText(file_name))
             {
                 swriter.WriteLine(_towrite);
             }
         }
-        public override object convert(List<LogBase> memoryData, bool is_sub = false)
+        public override object Convert(List<LogBase> memoryData, bool is_sub = false)
         {
             StringBuilder mainbuilder = new StringBuilder();
             foreach (var item in memoryData)
             {
                 //Get the primary values
-                mainbuilder.AppendLine((string)convert(item, is_sub)); //convert each sinlge entry
+                mainbuilder.AppendLine((string)Convert(item, is_sub)); //convert each sinlge entry
                 if (item.Children.Count > 1)
                 {
-                    mainbuilder.AppendLine((string)convert(item.Children, true));
+                    mainbuilder.AppendLine((string)Convert(item.Children, true));
                 }
             }
             return mainbuilder.ToString();
         }
-        public override object convert(LogBase data, bool is_sub = false)
+        public override object Convert(LogBase data, bool is_sub = false)
         {
             StringBuilder sbuilder = new StringBuilder();
             if (is_sub)
