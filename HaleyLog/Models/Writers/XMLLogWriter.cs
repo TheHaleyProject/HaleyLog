@@ -12,7 +12,7 @@ using System.Security.Cryptography;
 using Haley.Utils;
 using System.Xml;
 
-namespace Haley.Log.Writers
+namespace Haley.Models
 {
     internal class XMLLogWriter : LogWriterBase
     {
@@ -29,7 +29,7 @@ namespace Haley.Log.Writers
                 XDocument xdoc;
                 try
                 {
-                    xdoc = XDocument.Load(file_name);
+                    xdoc = XDocument.Load(outputFilePath);
                 }
                 catch (Exception)
                 {
@@ -68,17 +68,17 @@ namespace Haley.Log.Writers
 
         #region Overridden Methods
 
-        public override object Convert(List<LogData> memoryData, bool is_sub = false)
+        public override object Convert(List<LogData> memoryData)
         {
             return _convert(memoryData);
         }
 
-        public override object Convert(LogData data, bool is_sub = false)
+        public override object Convert(LogData data)
         {
             return _convert(data);
         }
 
-        public override void Write(LogData data, bool is_sub = false)
+        public override void Write(LogData data)
         {
             //If sub, read the xml and get the last node and add everything as sub.
             try
@@ -99,7 +99,7 @@ namespace Haley.Log.Writers
                 {
                     xroot.Add(input_node); //if not sub, add to the root
                 }
-                xdoc.Save(file_name);
+                xdoc.Save(outputFilePath);
             }
             catch (Exception ex)
             {
@@ -107,7 +107,7 @@ namespace Haley.Log.Writers
             }
         }
 
-        public override void Write(List<LogData> memoryData, bool is_sub = false)
+        public override void Write(List<LogData> memoryData)
         {
             if (memoryData.Count == 0) return; //Don't proceed for empty list
             //If sub, read the xml and get the last node and add everything as sub.
@@ -129,7 +129,7 @@ namespace Haley.Log.Writers
                 {
                     xroot.Add(_input_nodes); //if not sub, add to the root
                 }
-                xdoc.Save(file_name);
+                xdoc.Save(outputFilePath);
             }
             catch (Exception ex)
             {

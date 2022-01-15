@@ -37,5 +37,6 @@ namespace Haley.Abstractions
         /// Message level.
         /// </summary>
         LogLevel Loglevel { get; set; }
+        Exception Exception { get; set; }
     }
 }

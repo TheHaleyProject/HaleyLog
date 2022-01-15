@@ -4,25 +4,26 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Haley.Log;
 
-namespace Haley.Log.Writers
+namespace Haley.Models
 {
     internal class DetailedTextLogWriter : LogWriterBase
     {
         public DetailedTextLogWriter(string file_location, string file_name) : base(file_location, file_name, "txt") { }
 
-        public override void Write(LogData data,)
+        public override void Write(LogData data)
         {
-            string _towrite = (string)Convert(data, is_sub);
-            using (StreamWriter swriter = File.AppendText(file_name))
+            string _towrite = (string)Convert(data);
+            using (StreamWriter swriter = File.AppendText(outputFilePath))
             {
                 swriter.WriteLine(_towrite);
             }
         }
-        public override void Write(List<LogData> memoryData, bool is_sub = false)
+        public override void Write(List<LogData> dataList)
         {
-            string _towrite = (string)Convert(memoryData, is_sub);
-            using (StreamWriter swriter = File.AppendText(file_name))
+            string _towrite = (string)Convert(dataList);
+            using (StreamWriter swriter = File.AppendText(outputFilePath))
             {
                 swriter.WriteLine(_towrite);
             }
@@ -41,7 +42,7 @@ namespace Haley.Log.Writers
             }
             return mainbuilder.ToString();
         }
-        public override object Convert(LogData data, bool is_sub = false)
+        public override object Convert(LogData data)
         {
             StringBuilder sbuilder = new StringBuilder();
             if (is_sub)
@@ -53,7 +54,7 @@ namespace Haley.Log.Writers
                 sbuilder.AppendLine("---- BEGIN LOG ----");
             }
             //Get timestamp
-            sbuilder.AppendLine(nameof(data.TimeStamp) + " : " + data.TimeStamp.ToString(timeformat));
+            sbuilder.AppendLine(nameof(data.TimeStamp) + " : " + data.TimeStamp.ToString(logTimeFormat));
             //Get PropertyName
             if (!string.IsNullOrEmpty(data.Title)) sbuilder.AppendLine(nameof(data.Title) + " : " + data.Title);
             //Get the main message if present

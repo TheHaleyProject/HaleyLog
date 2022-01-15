@@ -13,7 +13,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Reflection;
 
-namespace Haley.Log.Writers
+namespace Haley.Models
 {
     internal class JSONLogWriter : LogWriterBase
     {
@@ -37,31 +37,31 @@ namespace Haley.Log.Writers
             return JsonSerializer.Serialize(source, source.GetType(), _options);
         }
 
-        public override object Convert(List<LogData> memoryData, bool is_sub = false)
+        public override object Convert(List<LogData> dataList)
         {
             return _convert(memoryData);
         }
 
-        public override object Convert(LogData data, bool is_sub = false)
+        public override object Convert(LogData data)
         {
             return _convert(data);
         }
 
 
-        public override void Write(LogData data, bool is_sub = false)
+        public override void Write(LogData data)
         {
             List<LogData> _towriteList = new List<LogData>();
             _towriteList.Add(data);
             Write(_towriteList, is_sub);
         }
 
-        public override void Write(List<LogData> memoryData, bool is_sub = false)
+        public override void Write(List<LogData> dataList)
         {
             List<LogData> target_list = new List<LogData>();
             //Now try to get the existing file and see if it has any data.
-            if (File.Exists(file_name))
+            if (File.Exists(outputFilePath))
             {
-                string _parent_json = File.ReadAllText(file_name);
+                string _parent_json = File.ReadAllText(outputFilePath);
                 target_list = JsonSerializer.Deserialize<List<LogData>>(_parent_json, _options);
             }
             if (is_sub)
@@ -79,7 +79,7 @@ namespace Haley.Log.Writers
                 target_list.AddRange(memoryData);
             }
             string _towrite = (string)Convert(target_list, is_sub);
-            File.WriteAllText(file_name, _towrite);
+            File.WriteAllText(outputFilePath, _towrite);
         }
     }
 }

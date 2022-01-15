@@ -11,9 +11,9 @@ namespace Haley.Log
 {
     public sealed class LogStore
     {
-        private ConcurrentDictionary<string, ILoggerBase> _loggers = new ConcurrentDictionary<string, ILoggerBase>();
+        private ConcurrentDictionary<string, IHLogger> _loggers = new ConcurrentDictionary<string, IHLogger>();
 
-        public ILoggerBase BaseLog { get; set; } //This is the singleton logger to be used.
+        public IHLogger BaseLog { get; set; } //This is the singleton logger to be used.
         private static bool _initiated = false;
         private  static LogStore _singleton;
         public static LogStore Singleton 
@@ -30,7 +30,7 @@ namespace Haley.Log
             } 
         }
 
-        public static LogStore CreateSingleton(ILoggerBase sourceLog)
+        public static LogStore CreateSingleton(IHLogger sourceLog)
         {
             if (!_initiated)
             {
@@ -39,29 +39,29 @@ namespace Haley.Log
             }
             return _singleton;
         }
-        public ILoggerBase logger(Enum @enum)
+        public IHLogger logger(Enum @enum)
         {
             string _key = @enum.getKey();
             return logger(_key);
         }
 
-        public ILoggerBase logger(string key)
+        public IHLogger logger(string key)
         {
                 if(_loggers.ContainsKey(key))
                 {
-                     ILoggerBase _result = null;
+                     IHLogger _result = null;
                     _loggers.TryGetValue(key, out _result);
                     return _result;
                 }
             return null;
         }
 
-        public bool AddLog(ILoggerBase source,Enum @enum)
+        public bool AddLog(IHLogger source,Enum @enum)
         {
             return AddLog(source, @enum.getKey());
         }
 
-        public bool AddLog(ILoggerBase source,  string key)
+        public bool AddLog(IHLogger source,  string key)
         {
             if (_loggers.ContainsKey(key)) return false;
             return _loggers.TryAdd(key, source);

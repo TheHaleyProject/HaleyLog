@@ -26,6 +26,9 @@ namespace Haley.Models
         public EventId EventId { get; set; }
         [XmlElement(ElementName = "ModuleName")]
         public string ModuleName { get; set; }
+        [XmlIgnore]
+        [JsonIgnore]
+        public Exception Exception { get; set; }
         public LogData() { Id = Guid.NewGuid().ToString(); }
     }
 }
