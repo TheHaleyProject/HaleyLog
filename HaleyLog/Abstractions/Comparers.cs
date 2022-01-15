@@ -5,14 +5,14 @@ using System.Text;
 
 namespace Haley.Abstractions
 {
-    public class LogEqualityComparer : IEqualityComparer<ILog>
+    public class LogEqualityComparer : IEqualityComparer<ILogData>
     {
-        public bool Equals(ILog x, ILog y)
+        public bool Equals(ILogData x, ILogData y)
         {
             return (x.Id == y.Id);
         }
 
-        public int GetHashCode(ILog obj)
+        public int GetHashCode(ILogData obj)
         {
             return obj.GetHashCode();
         }

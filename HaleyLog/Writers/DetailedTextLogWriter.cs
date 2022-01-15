@@ -11,7 +11,7 @@ namespace Haley.Log.Writers
     {
         public DetailedTextLogWriter(string file_location, string file_name) : base(file_location, file_name, "txt") { }
 
-        public override void Write(LogBase data, bool is_sub = false)
+        public override void Write(LogData data,)
         {
             string _towrite = (string)Convert(data, is_sub);
             using (StreamWriter swriter = File.AppendText(file_name))
@@ -19,7 +19,7 @@ namespace Haley.Log.Writers
                 swriter.WriteLine(_towrite);
             }
         }
-        public override void Write(List<LogBase> memoryData, bool is_sub = false)
+        public override void Write(List<LogData> memoryData, bool is_sub = false)
         {
             string _towrite = (string)Convert(memoryData, is_sub);
             using (StreamWriter swriter = File.AppendText(file_name))
@@ -27,13 +27,13 @@ namespace Haley.Log.Writers
                 swriter.WriteLine(_towrite);
             }
         }
-        public override object Convert(List<LogBase> memoryData, bool is_sub = false)
+        public override object Convert(List<LogData> data)
         {
             StringBuilder mainbuilder = new StringBuilder();
-            foreach (var item in memoryData)
+            foreach (var item in data)
             {
                 //Get the primary values
-                mainbuilder.AppendLine((string)Convert(item, is_sub)); //convert each sinlge entry
+                mainbuilder.AppendLine((string)Convert(item)); //convert each sinlge entry
                 if (item.Children.Count > 1)
                 {
                     mainbuilder.AppendLine((string)Convert(item.Children, true));
@@ -41,7 +41,7 @@ namespace Haley.Log.Writers
             }
             return mainbuilder.ToString();
         }
-        public override object Convert(LogBase data, bool is_sub = false)
+        public override object Convert(LogData data, bool is_sub = false)
         {
             StringBuilder sbuilder = new StringBuilder();
             if (is_sub)
@@ -55,11 +55,11 @@ namespace Haley.Log.Writers
             //Get timestamp
             sbuilder.AppendLine(nameof(data.TimeStamp) + " : " + data.TimeStamp.ToString(timeformat));
             //Get PropertyName
-            if (!string.IsNullOrEmpty(data.Name)) sbuilder.AppendLine(nameof(data.Name) + " : " + data.Name);
+            if (!string.IsNullOrEmpty(data.Title)) sbuilder.AppendLine(nameof(data.Title) + " : " + data.Title);
             //Get the main message if present
             if (!string.IsNullOrEmpty(data.Message)) sbuilder.AppendLine(nameof(data.Message) + " : " + data.Message);
             //Get the Info Type
-            sbuilder.AppendLine(nameof(data.MessageType) + " : " + data.MessageType.ToString());
+            sbuilder.AppendLine(nameof(data.Loglevel) + " : " + data.Loglevel.ToString());
 
             //Get Further Data if it is exception type
             if (data.GetType() == typeof(ExceptionLog))

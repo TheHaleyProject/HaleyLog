@@ -8,9 +8,9 @@ namespace Haley.Abstractions
 {
     public interface ILogWriter
     {
-        object Convert(List<LogBase> memoryData, bool is_sub = false); //To Convert to relevant format
-        object Convert(LogBase data, bool is_sub = false); //To Convert to relevant format
-        void Write(LogBase data,bool is_sub=false);
-        void Write(List<LogBase> memoryData, bool is_sub = false);
+        object Convert(List<LogData> datalist); //To Convert to relevant format
+        object Convert(LogData data); //To Convert to relevant format
+        void Write(LogData data);
+        void Write(List<LogData> datalist);
     }
 }

@@ -15,48 +15,48 @@ using Haley.Enums;
 
 namespace Haley.Log
 {
-    public sealed class HLog : LoggerBase, ILogger
+    public sealed class FileLogger : LoggerBase
     {
         #region ATTRIBUTES
         private const string SUBLOGKEY = "SUBLOG_PLACEHOLDER";
-        private List<LogBase> memoryStore;
+        private List<LogData> memoryStore;
         private int auto_dump_count;
         private bool should_auto_dump;
         #endregion
 
         #region Private Build Methods
-        private LogBase _buildInfo(string message, string prop_name, MessageType msg_type = MessageType.Information)
+        private LogData _buildInfo(string message, string prop_name, LogLevel log_level = LogLevel.Information)
         {
-            LogBase _result = new LogBase();
-            _result.Name = prop_name ?? string.Empty;
+            LogData _result = new LogData();
+            _result.Title = prop_name ?? string.Empty;
             _result.Message = message;
-            _result.MessageType = msg_type;
+            _result.Loglevel = log_level;
             _result.TimeStamp = DateTime.UtcNow;
             return _result;
         }
 
-        private LogBase _buildException(Exception _exception, string prop_name, string comments)
+        private LogData _buildException(Exception _exception, string prop_name, string comments)
         {
             ExceptionLog _result = new ExceptionLog();
-            _result.Name = prop_name ?? string.Empty;
+            _result.Title = prop_name ?? string.Empty;
             _result.Source = _exception.Source;
             _result.Trace = _exception.StackTrace;
             _result.ExceptionMessage = _exception.Message;
             _result.Message = comments ?? string.Empty;
             _result.TimeStamp = DateTime.UtcNow;
-            _result.MessageType = MessageType.Exception;
+            _result.Loglevel = LogLevel.Exception;
             return _result;
         }
 
-        private LogBase _buildKVP(string key, string value, string prop_name, string comments)
+        private LogData _buildKVP(string key, string value, string prop_name, string comments)
         {
             DictionaryLog _result = new DictionaryLog();
-            _result.Name = prop_name;
+            _result.Title = prop_name;
             _result.Message = comments ?? string.Empty;
             _result.Key = key;
             _result.Value = value;
             _result.TimeStamp = DateTime.UtcNow;
-            _result.MessageType = MessageType.Property;
+            _result.Loglevel = LogLevel.Property;
             return _result;
         }
         #endregion
@@ -68,13 +68,13 @@ namespace Haley.Log
                 if (_memoryStoreCount(memoryStore.ToList()) > auto_dump_count) DumpMemory();
         }
 
-        private int _memoryStoreCount(List<LogBase> source)
+        private int _memoryStoreCount(List<LogData> source)
         {
             int basecount = source.Count + source.Sum(p=> _memoryStoreCount(p.Children));
             return basecount; //This should give count value of recursive items.
         }
 
-        private void _log (LogBase input, bool in_memory, bool is_sub=false)
+        private void _log (LogData input, bool in_memory, bool is_sub=false)
         {
             if (is_memory_log)
             {
@@ -95,7 +95,7 @@ namespace Haley.Log
                     else
                     {
                         //Sub should always be added to last item in memory.
-                        LogBase last_node;
+                        LogData last_node;
                         if (memoryStore.Count > 0)
                         {
                             last_node = memoryStore.Last(); //Get last node
@@ -126,27 +126,27 @@ namespace Haley.Log
         /// Log the message
         /// </summary>
         /// <param name="message">String value of the message</param>
-        /// <param name="msg_type">Type of message</param>
-        /// <param name="property_name">Some associated property name</param>
+        /// <param name="log_level">Type of message</param>
+        /// <param name="title">Some associated property name</param>
         /// <param name="in_memory">If false, the data is written directly on to the file. If true, the date is stored in memory until dumped.</param>
         /// <returns>GUID value of the log messgae</returns>
-        public override string Log(string message, MessageType msg_type = MessageType.Information, string property_name = null, bool in_memory = false, bool is_sub = false)
+        public override string Log(string message, LogLevel log_level = LogLevel.Information, string title = null, bool in_memory = false, bool is_sub = false)
         {
-            LogBase _infoLog = _buildInfo(message, property_name, msg_type);
+            LogData _infoLog = _buildInfo(message, title, log_level);
             _log(_infoLog, in_memory,is_sub);
             return _infoLog.Id;
         }
 
-        public override string Log(Exception exception, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false)
+        public override string Log(Exception exception, string title = null, bool in_memory = false, bool is_sub = false)
         {
-            LogBase _exceptionLog = _buildException(exception, property_name, comments);
+            LogData _exceptionLog = _buildException(exception, title, comments);
             _log(_exceptionLog, in_memory, is_sub);
             return _exceptionLog.Id;
         }
 
-        public override string Log(string key, string value, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false)
+        public override string Log(string key, string value, string title = null, bool in_memory = false, bool is_sub = false)
         {
-            LogBase _kvpLog = _buildKVP(key, value, property_name,comments);
+            LogData _kvpLog = _buildKVP(key, value, title,comments);
             _log(_kvpLog, in_memory, is_sub);
             return _kvpLog.Id;
         }
@@ -170,11 +170,11 @@ namespace Haley.Log
 
         #region Public Methods
 
-        public List<ILog> GetMemoryStore()
+        public List<ILogData> GetMemoryStore()
         {
             lock(memoryStore)
             {
-                return memoryStore.Cast<ILog>().ToList();
+                return memoryStore.Cast<ILogData>().ToList();
             }
         }
 
@@ -202,71 +202,71 @@ namespace Haley.Log
         #endregion
 
         #region Direct Logs
-        public string Info(string message, string property_name = null)
+        public string Info(string message, string title = null)
         {
-            return Log(message, MessageType.Information, property_name);
+            return Log(message, LogLevel.Information, title);
         }
-        public string Warn(string message, string property_name = null)
+        public string Warn(string message, string title = null)
         {
-            return Log(message, MessageType.Warning, property_name);
+            return Log(message, LogLevel.Warning, title);
         }
-        public string Error(string message, string property_name = null)
+        public string Error(string message, string title = null)
         {
-            return Log(message, MessageType.Error, property_name);
+            return Log(message, LogLevel.Error, title);
         }
-        public string Debug(string message, string property_name = null)
+        public string Debug(string message, string title = null)
         {
-            return Log(message, MessageType.Debug, property_name);
+            return Log(message, LogLevel.Debug, title);
         }
-        public string Exception(Exception exception, string comments = null, string property_name = null)
+        public string Exception(Exception exception, string title = null)
         {
-            return Log(exception,comments,property_name);
+            return Log(exception,comments,title);
         }
 
         #endregion
 
         #region memLog
-        public string MemLog(string message, MessageType msg_type = MessageType.Information, string property_name = null)
+        public string MemLog(string message, LogLevel log_level = LogLevel.Information, string title = null)
         {
-            return Log(message, msg_type, property_name, true, false);
+            return Log(message, log_level, title, true, false);
         }
-        public string MemLog(Exception exception, string comments = null, string property_name = null)
+        public string MemLog(Exception exception, string title = null)
         {
-            return Log(exception, comments, property_name, true, false);
+            return Log(exception, comments, title, true, false);
         }
-        public string MemLog(string key, string value, string comments = null, string property_name = null)
+        public string MemLog(string key, string value, string title = null)
         {
-            return Log(key, value, comments, property_name, true, false);
+            return Log(key, value, comments, title, true, false);
         }
         #endregion
 
         #region subLog
-        public string SubLog(string message, MessageType msg_type = MessageType.Information, string property_name = null)
+        public string SubLog(string message, LogLevel log_level = LogLevel.Information, string title = null)
         {
-            return Log(message, msg_type, property_name, false, true);
+            return Log(message, log_level, title, false, true);
         }
-        public string SubLog(Exception exception, string comments = null, string property_name = null)
+        public string SubLog(Exception exception, string title = null)
         {
-            return Log(exception, comments, property_name, false, true);
+            return Log(exception, comments, title, false, true);
         }
-        public string SubLog(string key, string value, string comments = null, string property_name = null)
+        public string SubLog(string key, string value, string title = null)
         {
-            return Log(key, value, comments, property_name, false, true);
+            return Log(key, value, comments, title, false, true);
         }
         #endregion
 
         #region memSubLog
-        public string MemSubLog(string message, MessageType msg_type = MessageType.Information, string property_name = null)
+        public string MemSubLog(string message, LogLevel log_level = LogLevel.Information, string title = null)
         {
-            return Log(message, msg_type, property_name, true, true);
+            return Log(message, log_level, title, true, true);
         }
-        public string MemSubLog(Exception exception, string comments = null, string property_name = null)
+        public string MemSubLog(Exception exception, string title = null)
         {
-            return Log(exception, comments, property_name, true, true);
+            return Log(exception, comments, title, true, true);
         }
-        public string MemSubLog(string key, string value, string comments = null, string property_name = null)
+        public string MemSubLog(string key, string value, string title = null)
         {
-            return Log(key, value, comments, property_name, true, true);
+            return Log(key, value, comments, title, true, true);
         }
         #endregion
 
@@ -279,16 +279,16 @@ namespace Haley.Log
         /// <param name="_type">File output type</param>
         /// <param name="auto_dump">If set to true, the data in memory is automatically dumped after every <paramref name="max_memory_count"/></param>
         /// <param name="max_memory_count">When memory data reaches this count, data in memory is dumped in to file. Minimum value should be 100 and maximum can be 5000</param>
-        public HLog(string output_path,string output_file_name, OutputType _type, bool auto_dump = true, int max_memory_count = 100) :base(output_path, output_file_name, _type)
+        public FileLogger(string output_path,string output_file_name, OutputType _type, bool auto_dump = true, int max_memory_count = 100) :base(output_path, output_file_name, _type)
         {
-            memoryStore = new List<LogBase>();
+            memoryStore = new List<LogData>();
             should_auto_dump = auto_dump;
             auto_dump_count = (max_memory_count > 100 && max_memory_count < 5000) ? max_memory_count : 500;
         }
 
-        public HLog(OutputType _type) : base(_type)
+        public FileLogger(OutputType _type) : base(_type)
         {
-            memoryStore = new List<LogBase>();
+            memoryStore = new List<LogData>();
             should_auto_dump = false;
             auto_dump_count = 0;
         }

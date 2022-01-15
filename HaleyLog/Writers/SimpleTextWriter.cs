@@ -17,7 +17,7 @@ namespace Haley.Log.Writers
     {
         public SimpleTextWriter(string file_location, string file_name) : base(file_location, file_name , "txt") { }
 
-        public override void Write(LogBase data, bool is_sub = false)
+        public override void Write(LogData data, bool is_sub = false)
         {
             string _towrite = (string)Convert(data,is_sub);
             using (StreamWriter swriter = File.AppendText(file_name))
@@ -25,7 +25,7 @@ namespace Haley.Log.Writers
                swriter.WriteLine(_towrite);
             }
         }
-        public override void Write(List<LogBase> memoryData, bool is_sub = false)
+        public override void Write(List<LogData> memoryData, bool is_sub = false)
         {
             string _towrite = (string)Convert(memoryData,is_sub);
             using (StreamWriter swriter = File.AppendText(file_name))
@@ -33,7 +33,7 @@ namespace Haley.Log.Writers
                swriter.WriteLine(_towrite);
             }
         }
-        public override object Convert(List<LogBase> memoryData, bool is_sub = false)
+        public override object Convert(List<LogData> memoryData, bool is_sub = false)
         {
             StringBuilder mainbuilder = new StringBuilder();
             foreach (var item in memoryData)
@@ -47,17 +47,17 @@ namespace Haley.Log.Writers
             }
             return mainbuilder.ToString();
         }
-        public override object Convert(LogBase data, bool is_sub = false)
+        public override object Convert(LogData data, bool is_sub = false)
         {
             StringBuilder sbuilder = new StringBuilder();
             sbuilder.Append(string.Format("{0,-20}", data.TimeStamp.ToString(timeformat)));
             sbuilder.Append(" | ");
-            sbuilder.Append(string.Format("{0,-6}", data.MessageType.ToString().Substring(0,4).ToUpper()));
+            sbuilder.Append(string.Format("{0,-6}", data.Loglevel.ToString().Substring(0,4).ToUpper()));
             sbuilder.Append(" | ");
             //If Property name is not null, provide it.
-            if (!string.IsNullOrEmpty(data.Name))
+            if (!string.IsNullOrEmpty(data.Title))
             {
-                sbuilder.Append("Prop Name - " + data.Name);
+                sbuilder.Append("Prop Name - " + data.Title);
                 sbuilder.Append(" | ");
             }
             //Add if KVP

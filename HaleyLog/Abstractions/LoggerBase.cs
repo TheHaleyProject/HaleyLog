@@ -5,12 +5,15 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Haley.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace Haley.Abstractions
 {
     public abstract class LoggerBase : ILoggerBase
     {
-        protected bool is_memory_log { get; }
+        //Each loggerbase will have it's own Producer Consumer Implementation. 
+        //The different methods (via different threads) should/could produce and add it to the collection
+        //One single thread will consume and then write to the files.
         protected string output_path { get; set; }
         protected string output_file_name { get; set; }
         private OutputType output_type { get; set; }
@@ -24,7 +27,8 @@ namespace Haley.Abstractions
                 //if directory doesn't exist, try to create it. If unable to create, then it means, access is denied.
                 if (!Directory.Exists(output_path)) Directory.CreateDirectory(output_path);
 
-                string tempfilepath = Path.Combine(output_path, "test.tmptest");
+                var _tempName = Path.GetFileName(Path.GetTempFileName());
+                string tempfilepath = Path.Combine(output_path, _tempName);
                 //if directory exists, then we need to check if the user has write access to it.
                 using (FileStream fs = File.Create(tempfilepath)) { }
                 File.Delete(tempfilepath);
@@ -32,51 +36,30 @@ namespace Haley.Abstractions
             }
             catch (Exception ex)
             {
-                throw new ArgumentException("Log writer doesn't have sufficient rights to write in the directory", ex);
+                throw new ArgumentException($@"Log writer doesn't have sufficient rights to write in the directory {output_path}", ex);
             }
         } //First step to be done.
         #endregion
 
         #region DebugMethods
-        public string Debug(string message, string property_name = null, bool in_memory = false, bool is_sub = false)
+        public string Debug(string message, string title = null)
         {
-            if (Assembly.GetEntryAssembly().IsDebugBuild())
-            {
-                return Log(message, MessageType.Debug, property_name, in_memory, is_sub);
-            }
-            else
-            {
-                return null;
-            }
+            return Log(message, LogLevel.Debug, title);
         }
-        public string Debug(Exception exception, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false)
+        public string Debug(Exception exception, string title = null )
         {
-            if (Assembly.GetEntryAssembly().IsDebugBuild())
-            {
-                return Log(exception, comments, property_name, in_memory, is_sub);
-            }
-            else
-            {
-                return null;
-            }
+            return Log(exception, title);
         }
-        public string Debug(string key, string value, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false)
+        public string Debug(string key, string value, string title = null)
         {
-            if (Assembly.GetEntryAssembly().IsDebugBuild())
-            {
-                return Log(key, value, comments, property_name, in_memory, is_sub);
-            }
-            else
-            {
-                return null;
-            }
+            return Log(key, value, title);
         }
         #endregion
 
         #region Main Abstractions
-        public abstract string Log(string message, MessageType msg_type = MessageType.Information, string property_name = null, bool in_memory = false, bool is_sub = false);
-        public abstract string Log(Exception exception, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false);
-        public abstract string Log(string key, string value, string comments = null, string property_name = null, bool in_memory = false, bool is_sub = false);
+        public abstract string Log(string message, LogLevel log_level = LogLevel.Information, string title = null);
+        public abstract string Log(Exception exception, string title = null);
+        public abstract string Log(string key, string value, string title = null);
 
         public abstract void DumpMemory();
 
@@ -128,6 +111,102 @@ namespace Haley.Abstractions
                     _writer = new DetailedTextLogWriter(output_path, output_file_name);
                     break;
             }
+        }
+
+        public string Trace(string message, string title = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string Trace(Exception exception, string title = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string Trace(string key, string value, string title = null)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDisposable BeginScope<TState>(TState state)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Info(string message, string title = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Warn(string message, string title = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Error(string message, string title = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Exception(Exception exception, string title = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ILoggerBase.Trace(string message, string title)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ILoggerBase.Trace(Exception exception, string title)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ILoggerBase.Trace(string key, string value, string title)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ILoggerBase.Debug(string message, string title)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ILoggerBase.Debug(Exception exception, string title)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ILoggerBase.Debug(string key, string value, string title)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ILoggerBase.Log(string message, LogLevel log_level, string title)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ILoggerBase.Log(Exception exception, string title)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ILoggerBase.Log(string key, string value, string title)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }

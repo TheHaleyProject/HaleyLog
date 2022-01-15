@@ -33,12 +33,12 @@ namespace Haley.Log.Writers
             }
         }
 
-        public abstract object Convert(List<LogBase> memoryData, bool is_sub = false);
+        public abstract object Convert(List<LogData> memoryData, bool is_sub = false);
 
-        public abstract object Convert(LogBase data, bool is_sub = false);
+        public abstract object Convert(LogData data, bool is_sub = false);
 
-        public abstract void Write(LogBase data, bool is_sub = false);
+        public abstract void Write(LogData data, bool is_sub = false);
 
-        public abstract void Write(List<LogBase> memoryData, bool is_sub = false);
+        public abstract void Write(List<LogData> memoryData, bool is_sub = false);
     }
 }

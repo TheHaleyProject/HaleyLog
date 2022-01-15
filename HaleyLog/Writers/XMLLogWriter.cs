@@ -68,17 +68,17 @@ namespace Haley.Log.Writers
 
         #region Overridden Methods
 
-        public override object Convert(List<LogBase> memoryData, bool is_sub = false)
+        public override object Convert(List<LogData> memoryData, bool is_sub = false)
         {
             return _convert(memoryData);
         }
 
-        public override object Convert(LogBase data, bool is_sub = false)
+        public override object Convert(LogData data, bool is_sub = false)
         {
             return _convert(data);
         }
 
-        public override void Write(LogBase data, bool is_sub = false)
+        public override void Write(LogData data, bool is_sub = false)
         {
             //If sub, read the xml and get the last node and add everything as sub.
             try
@@ -107,7 +107,7 @@ namespace Haley.Log.Writers
             }
         }
 
-        public override void Write(List<LogBase> memoryData, bool is_sub = false)
+        public override void Write(List<LogData> memoryData, bool is_sub = false)
         {
             if (memoryData.Count == 0) return; //Don't proceed for empty list
             //If sub, read the xml and get the last node and add everything as sub.

@@ -11,40 +11,57 @@ namespace Haley.Log
 {
     public sealed class LogStore
     {
-        private ConcurrentDictionary<string, ILogger> _loggers = new ConcurrentDictionary<string, ILogger>();
+        private ConcurrentDictionary<string, ILoggerBase> _loggers = new ConcurrentDictionary<string, ILoggerBase>();
 
-        public ILogger BaseLog { get; set; } //This is the singleton logger to be used.
-        private static LogStore _singleton;
-        public static LogStore Singleton { get { return _singleton; } }
-
-        public static void CreateSingleton(ILogger sourceLog)
-        {
-            _singleton = new LogStore();
-            _singleton.BaseLog = sourceLog;
+        public ILoggerBase BaseLog { get; set; } //This is the singleton logger to be used.
+        private static bool _initiated = false;
+        private  static LogStore _singleton;
+        public static LogStore Singleton 
+        { 
+            get 
+            {
+                if (!_initiated)
+                {
+                    _initiated = true;// We have initiated the singleton.
+                    //Default logger will happen in the base directory.
+                    //_singleton.BaseLog = new HLog(); //Setup Hlog as the first log.
+                }
+                return _singleton; 
+            } 
         }
-        public ILogger logger(Enum @enum)
+
+        public static LogStore CreateSingleton(ILoggerBase sourceLog)
+        {
+            if (!_initiated)
+            {
+                _singleton.BaseLog = sourceLog;
+                _initiated = true;
+            }
+            return _singleton;
+        }
+        public ILoggerBase logger(Enum @enum)
         {
             string _key = @enum.getKey();
             return logger(_key);
         }
 
-        public ILogger logger(string key)
+        public ILoggerBase logger(string key)
         {
                 if(_loggers.ContainsKey(key))
                 {
-                     ILogger _result = null;
+                     ILoggerBase _result = null;
                     _loggers.TryGetValue(key, out _result);
                     return _result;
                 }
             return null;
         }
 
-        public bool AddLog(ILogger source,Enum @enum)
+        public bool AddLog(ILoggerBase source,Enum @enum)
         {
             return AddLog(source, @enum.getKey());
         }
 
-        public bool AddLog(ILogger source,  string key)
+        public bool AddLog(ILoggerBase source,  string key)
         {
             if (_loggers.ContainsKey(key)) return false;
             return _loggers.TryAdd(key, source);

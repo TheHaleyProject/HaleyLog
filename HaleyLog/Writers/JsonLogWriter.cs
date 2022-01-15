@@ -37,32 +37,32 @@ namespace Haley.Log.Writers
             return JsonSerializer.Serialize(source, source.GetType(), _options);
         }
 
-        public override object Convert(List<LogBase> memoryData, bool is_sub = false)
+        public override object Convert(List<LogData> memoryData, bool is_sub = false)
         {
             return _convert(memoryData);
         }
 
-        public override object Convert(LogBase data, bool is_sub = false)
+        public override object Convert(LogData data, bool is_sub = false)
         {
             return _convert(data);
         }
 
 
-        public override void Write(LogBase data, bool is_sub = false)
+        public override void Write(LogData data, bool is_sub = false)
         {
-            List<LogBase> _towriteList = new List<LogBase>();
+            List<LogData> _towriteList = new List<LogData>();
             _towriteList.Add(data);
             Write(_towriteList, is_sub);
         }
 
-        public override void Write(List<LogBase> memoryData, bool is_sub = false)
+        public override void Write(List<LogData> memoryData, bool is_sub = false)
         {
-            List<LogBase> target_list = new List<LogBase>();
+            List<LogData> target_list = new List<LogData>();
             //Now try to get the existing file and see if it has any data.
             if (File.Exists(file_name))
             {
                 string _parent_json = File.ReadAllText(file_name);
-                target_list = JsonSerializer.Deserialize<List<LogBase>>(_parent_json, _options);
+                target_list = JsonSerializer.Deserialize<List<LogData>>(_parent_json, _options);
             }
             if (is_sub)
             {
@@ -70,7 +70,7 @@ namespace Haley.Log.Writers
                 if (target_list.Count == 0)
                 {
                     //If target doens't have any data, then add a new one
-                    target_list.Add(new LogBase() {Name = SUBLOGKEY,TimeStamp = DateTime.UtcNow });
+                    target_list.Add(new LogData() {Title = SUBLOGKEY,TimeStamp = DateTime.UtcNow });
                 }
                 target_list.Last().Children.AddRange(memoryData);
             }
