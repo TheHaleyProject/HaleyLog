@@ -15,9 +15,7 @@ namespace Haley.Log
     {
         private static ConcurrentDictionary<string, IHLogger> _loggers = new ConcurrentDictionary<string, IHLogger>();
 
-        private static IHLogger defaultLogger = new FileLogger("HLOG", LogLevel.Information, OutputType.Text_simple);
-        public static IHLogger Logger => defaultLogger; //This is the singleton logger to be used.
-
+        #region GENERIC METHODS
         public static IHLogger CreateLogger(Enum key, IHLogger logger)
         {
             string _key = key.getKey();
@@ -44,19 +42,51 @@ namespace Haley.Log
             return null;
         }
 
-        public static IHLogger GetOrAddLogger(Enum key,string loggerName = "HLog")
+        #endregion
+
+        #region FILE LOGGERS
+        public static IHLogger GetOrAddFileLogger(Enum key, string loggerName)
         {
-            return GetOrAddLogger(key.getKey());
+            return GetOrAddFileLogger(key.getKey(), loggerName);
         }
-        public static IHLogger GetOrAddLogger(string key, string loggerName = "HLog")
+        public static IHLogger GetOrAddFileLogger(string key, string loggerName)
+        {
+            return GetOrAddFileLogger(key, loggerName, OutputType.Text_simple);
+        }
+
+        public static IHLogger GetOrAddFileLogger(Enum key, string loggerName, OutputType outputype)
+        {
+            return GetOrAddFileLogger(key.getKey(), loggerName, outputype, LogLevel.Information);
+        }
+        public static IHLogger GetOrAddFileLogger(string key, string loggerName, OutputType outputype)
+        {
+            return GetOrAddFileLogger(key, loggerName, outputype,LogLevel.Information);
+        }
+
+        public static IHLogger GetOrAddFileLogger(Enum key, string loggerName, OutputType outputype,LogLevel allowedLevel)
+        {
+            return GetOrAddFileLogger(key.getKey(), loggerName, outputype,allowedLevel);
+        }
+        public static IHLogger GetOrAddFileLogger(string key, string loggerName, OutputType outputype, LogLevel allowedLevel)
+        {
+            return GetOrAddFileLogger(key,loggerName, outputype, allowedLevel, null,null);
+        }
+
+        public static IHLogger GetOrAddFileLogger(Enum key, string loggerName, OutputType outputype, LogLevel allowedLevel,string outputDirectory,string fileName)
+        {
+            return GetOrAddFileLogger(key.getKey(), loggerName, outputype, allowedLevel,outputDirectory,fileName);
+        }
+        public static IHLogger GetOrAddFileLogger(string key, string loggerName, OutputType outputype, LogLevel allowedLevel, string outputDirectory, string fileName)
         {
             var _logger = GetLogger(key);
             if (_logger == null)
             {
-                _logger = CreateLogger(key, new FileLogger(loggerName ?? "HLog", LogLevel.Information, OutputType.Text_simple));
+                _logger = CreateLogger(key, new FileLogger(loggerName ?? "HLog", allowedLevel, outputDirectory, fileName, outputype));
             }
             return _logger;
         }
+
+        #endregion
 
         public static void ChangeAllLogLevels(LogLevel logLevel)
         {

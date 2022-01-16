@@ -14,7 +14,7 @@ using System.Xml;
 
 namespace Haley.Models
 {
-    internal class XMLLogWriter : LogWriterBase
+    internal class XMLLogWriter : FileLogWriterBase
     {
         public XMLLogWriter(string file_location, string file_name) : base(file_location, file_name, "xml") { }
 
@@ -28,7 +28,7 @@ namespace Haley.Models
                 XDocument xdoc;
                 try
                 {
-                    xdoc = XDocument.Load(outputFilePath);
+                    xdoc = XDocument.Load(OutputFilePath);
                 }
                 catch (Exception)
                 {
@@ -87,7 +87,7 @@ namespace Haley.Models
                 XElement xroot = _getRoot(xdoc);
                 XElement input_node = (XElement)Convert(data);
                 xroot.Add(input_node); //if not sub, add to the root
-                xdoc.Save(outputFilePath);
+                xdoc.Save(OutputFilePath);
             }
             catch (Exception ex)
             {
@@ -106,7 +106,7 @@ namespace Haley.Models
                 XElement xroot = _getRoot(xdoc);
                 var _input_nodes = ((XElement)Convert(datalist)).Elements();
                 xroot.Add(_input_nodes); //if not sub, add to the root
-                xdoc.Save(outputFilePath);
+                xdoc.Save(OutputFilePath);
             }
             catch (Exception ex)
             {

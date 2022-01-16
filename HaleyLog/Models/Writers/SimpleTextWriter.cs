@@ -14,24 +14,24 @@ using Microsoft.Extensions.Logging;
 
 namespace Haley.Models
 {
-    internal class SimpleTextWriter :LogWriterBase
+    internal class SimpleTextWriter : FileLogWriterBase
     {
         public SimpleTextWriter(string file_location, string file_name) : base(file_location, file_name , "txt") { }
 
         public override void Write(LogData data)
         {
             string _towrite = (string)Convert(data);
-            using (StreamWriter swriter = File.AppendText(outputFilePath))
+            using (StreamWriter swriter = File.AppendText(OutputFilePath))
             {
-               swriter.WriteLine(_towrite);
+               swriter.Write(_towrite);
             }
         }
         public override void Write(List<LogData> datalist)
         {
             string _towrite = (string)Convert(datalist);
-            using (StreamWriter swriter = File.AppendText(outputFilePath))
+            using (StreamWriter swriter = File.AppendText(OutputFilePath))
             {
-               swriter.WriteLine(_towrite);
+               swriter.Write(_towrite);
             }
         }
         public override object Convert(List<LogData> datalist)
@@ -49,7 +49,7 @@ namespace Haley.Models
             StringBuilder sbuilder = new StringBuilder();
             sbuilder.Append(string.Format("{0,-20}", data.TimeStamp.ToString(logTimeFormat)));
             sbuilder.Append(" | ");
-            sbuilder.Append(string.Format("{0,-7}", data.Loglevel.ToString().ToUpper()));
+            sbuilder.Append(string.Format("{0,-15}", data.Loglevel.ToString().ToUpper()));
             sbuilder.Append(" | ");
             //If Property name is not null, provide it.
             if (!string.IsNullOrEmpty(data.ModuleName))

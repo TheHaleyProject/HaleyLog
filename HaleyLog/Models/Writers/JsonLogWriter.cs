@@ -16,7 +16,7 @@ using Haley.Utils;
 
 namespace Haley.Models
 {
-    internal class JSONLogWriter : LogWriterBase
+    internal class JSONLogWriter : FileLogWriterBase
     {
         JsonSerializerOptions _options = null;
         public JSONLogWriter(string file_location, string file_name) : base(file_location, file_name , "json") {
@@ -59,14 +59,14 @@ namespace Haley.Models
         {
             List<LogData> target_list = new List<LogData>();
             //Now try to get the existing file and see if it has any data.
-            if (File.Exists(outputFilePath))
+            if (File.Exists(OutputFilePath))
             {
-                string _parent_json = File.ReadAllText(outputFilePath);
+                string _parent_json = File.ReadAllText(OutputFilePath);
                 target_list = JsonSerializer.Deserialize<List<LogData>>(_parent_json, _options);
             }
                 target_list.AddRange(dataList);
             string _towrite = (string)Convert(target_list);
-            File.WriteAllText(outputFilePath, _towrite);
+            File.WriteAllText(OutputFilePath, _towrite);
         }
     }
 }

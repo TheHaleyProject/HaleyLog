@@ -9,24 +9,24 @@ using Haley.Log;
 
 namespace Haley.Models
 {
-    internal class DetailedTextLogWriter : LogWriterBase
+    internal class DetailedTextLogWriter : FileLogWriterBase
     {
-        public DetailedTextLogWriter(string file_location, string file_name) : base(file_location, file_name, "txt") { }
+        public DetailedTextLogWriter(string file_location, string file_name) : base(file_location, file_name, "detailed.txt") { }
 
         public override void Write(LogData data)
         {
             string _towrite = (string)Convert(data);
-            using (StreamWriter swriter = File.AppendText(outputFilePath))
+            using (StreamWriter swriter = File.AppendText(OutputFilePath))
             {
-                swriter.WriteLine(_towrite);
+                swriter.Write(_towrite); //We already define all the lines required. so direclty write it.
             }
         }
         public override void Write(List<LogData> dataList)
         {
             string _towrite = (string)Convert(dataList);
-            using (StreamWriter swriter = File.AppendText(outputFilePath))
+            using (StreamWriter swriter = File.AppendText(OutputFilePath))
             {
-                swriter.WriteLine(_towrite);
+                swriter.Write(_towrite);
             }
         }
         public override object Convert(List<LogData> data)
@@ -34,14 +34,14 @@ namespace Haley.Models
             StringBuilder mainbuilder = new StringBuilder();
             foreach (var item in data)
             {
-                mainbuilder.AppendLine((string)Convert(item)); //convert each sinlge entry
+                mainbuilder.Append((string)Convert(item)); //convert each sinlge entry
             }
             return mainbuilder.ToString();
         }
         public override object Convert(LogData data)
         {
             StringBuilder sbuilder = new StringBuilder();
-            sbuilder.AppendLine("---- BEGIN LOG ----");
+            sbuilder.AppendLine("-----------------------");
             //Get timestamp
             sbuilder.AppendLine(string.Format("{0,-15} : {1}", nameof(data.TimeStamp), data.TimeStamp.ToString(logTimeFormat)));
             //Get the Info Type
@@ -55,9 +55,7 @@ namespace Haley.Models
             //Get the eventId data
             if (data.EventId != default(EventId)) sbuilder.AppendLine(string.Format("{0,-15} : {1}", nameof(data.EventId), data.EventId.Id + " | " + data.EventId.Name));
             //Get the Exception
-            if (!string.IsNullOrEmpty(data.Message)) sbuilder.AppendLine(string.Format("{0,-15} : {1}", nameof(data.Exception), data.Exception.ToString()));
-            sbuilder.AppendLine("---- END LOG ----" + Environment.NewLine);
-
+            if (data.Exception != null) sbuilder.AppendLine(string.Format("{0,-15} : {1}", nameof(data.Exception), data.Exception?.ToString()));
             return sbuilder.ToString();
         }
     }

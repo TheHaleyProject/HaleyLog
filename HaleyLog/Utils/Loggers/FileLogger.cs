@@ -14,24 +14,27 @@ using System.Collections.Concurrent;
 using Haley.Enums;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
+using System.Timers;
 
-namespace Haley.Log
+namespace Haley.Utils
 {
     public sealed class FileLogger : HLoggerBase
     {
+        //If a logger of a certain output (say JSON) is writing to a file, then another logger of output type (say Text) should not be encouraged.
+        //if two loggers tri
+
+        private static ConcurrentDictionary<string, IProducerConsumerService> _targetServices = new ConcurrentDictionary<string, IProducerConsumerService>();
+
         //Each loggerbase will have it's own Producer Consumer Implementation. 
         //The different methods (via different threads) should/could produce and add it to the collection
         //One single thread will consume and then write to the files.
         #region ATTRIBUTES
         OutputType _outputType { get; set; }
-        ILogWriter _writer { get; set; }
+        IFileLogWriter _writer { get; set; }
         string _outputDirectory { get; set; }
         string _fileName { get; set; }
+        IProducerConsumerService _producerService; //Each target file will have one single producer consumer service.
         #endregion
-
-        private BlockingCollection<LogData> _logItemQueue = new BlockingCollection<LogData>(boundedCapacity:500); //can add upto 500 lines of data but it has to be cleared first only then new data can be added.
-        private bool isConsuming = false;
-        private object consumingObject = new object();
 
         #region Private Helper Methods
         private bool checkDirectoryAccess()
@@ -53,34 +56,6 @@ namespace Haley.Log
                 throw new ArgumentException($@"Log writer doesn't have sufficient rights to write in the directory {_outputDirectory}", ex);
             }
         } //First step to be done.
-
-        private void ConsumeLogs()
-        {
-            try
-            {
-                lock (consumingObject) //So only one thread holds it.
-                {
-                    if (_logItemQueue.Count == 0) return; //Do not proceed as there are not items yet.
-                    isConsuming = true;
-                    bool _flag = true;
-                    while(_flag)
-                    {
-                        var _data = _logItemQueue.GetConsumingEnumerable().Take(20); //Take 20 items and then write them (if 10 items not available, it will return whatever available below 20.
-                        if (_data == null || _data.Count() == 0)
-                        {
-                            _flag = false;
-                            isConsuming = false;
-                        }
-                        _writer.Write(_data.ToList());
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                //Dont do anything yet.
-                isConsuming = false;
-            }
-        }
         #endregion
 
         #region Overridden Methods
@@ -93,25 +68,18 @@ namespace Haley.Log
         {
             //Don't write directly using the writer. Use a producer/consumer pattern based implementation.
             //Write all log to a collection. Consumer will then consume them and write using the writer.
-            //First come basis
-            _logItemQueue.Add(data);  //Thread safe adding. Multiple collections can try to add.
-            if (!isConsuming)
-            {
-                Task.Run(() => ConsumeLogs()); //not asynchronous but on a different thread.
-            }
+            _producerService?.Produce(data);
         }
+
         #endregion
 
         #region Initiations
-
-        public FileLogger(string name,LogLevel allowedLevel, string outputDirectory,string file_name, OutputType output_type) :base(name ?? "HLogger",allowedLevel)
+        private bool ProcessOutputDirectory(string outputDirectory)
         {
-            _outputType = output_type;
-
             //First preference.
             if (string.IsNullOrWhiteSpace(outputDirectory))
             {
-                outputDirectory = AppDomain.CurrentDomain?.BaseDirectory; 
+                outputDirectory = AppDomain.CurrentDomain?.BaseDirectory;
             }
 
             //Second preference
@@ -120,32 +88,59 @@ namespace Haley.Log
                 var _entryAssembly = Assembly.GetEntryAssembly();
                 if (_entryAssembly != null)
                 {
-                    outputDirectory=Path.GetDirectoryName(_entryAssembly.Location);
+                    outputDirectory = Path.GetDirectoryName(_entryAssembly.Location);
                 }
             }
 
             //Last Fall back preference
             if (string.IsNullOrWhiteSpace(outputDirectory))
             {
-                outputDirectory=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "HLogs",AppDomain.CurrentDomain?.FriendlyName ?? "ApplicationLogs");
+                outputDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "HLogs", AppDomain.CurrentDomain?.FriendlyName ?? "ApplicationLogs");
+            }
+
+            //Add a subfolder to the outputdirectory
+
+            if (!string.IsNullOrWhiteSpace(outputDirectory))
+            {
+                outputDirectory = Path.Combine(outputDirectory, "Logs");
+            }
+            _outputDirectory = outputDirectory; //Get directory
+
+            checkDirectoryAccess();
+            if (string.IsNullOrWhiteSpace(_outputDirectory)) return false;
+            return true;
+        }
+
+        public FileLogger(string name,LogLevel allowedLevel, string outputDirectory,string file_name, OutputType output_type) :base(name ?? "HLogger",allowedLevel)
+        {
+            _outputType = output_type;
+            if (!ProcessOutputDirectory(outputDirectory))
+            {
+                throw new ArgumentException($@"Unable to process output directory {_outputDirectory}");
             }
 
             if (string.IsNullOrWhiteSpace(_fileName))
             {
-                _fileName = $@"{AppDomain.CurrentDomain?.FriendlyName}_{Name}_Log";
+                _fileName = $@"{AppDomain.CurrentDomain?.FriendlyName}_{DateTime.Now.ToString("yyyy-MM-dd")}"; 
+                //If the filename is not provided by default, generate a file name with the friendlyname of the current domain
             }
 
-            _outputDirectory = outputDirectory; //Get directory
-            _fileName = _fileName + DateTime.Now.ToString("__yyyy_MM_dd__HH_mm_ss__");
-            //Check if the user has proper directory access or throw exception error.
-            checkDirectoryAccess();
-            _defineLogWriter(); //initiate the writer.
+            _defineLogWriter(); //initiate the writer which should prepare the file path name.
+
+            //FILE NAME IS THE MOST IMPORTANT KEY.
+            //FOR EACH UNIQUE FILE, DIFFERENT THREADS CAN PRODUCE LOGS TO SINLGE BLOCKING COLLECTION (MAY COME FROM DIFFERENT THREADS).
+            //FOR EACH UNIQUE FILE, USE ONE CONSUMER FOR WRITING (SHOULD BE VIA ONLY ONE THREAD).
+            if (!_targetServices.ContainsKey(_writer.OutputFilePath))
+            {
+                _targetServices.TryAdd(_writer.OutputFilePath, new ProducerConsumerService(_writer));
+            }
+            _producerService = _targetServices[_writer.OutputFilePath]; //This item is just a reference to the same static item.
         }
+       
         public FileLogger(string name, LogLevel allowedLevel,OutputType output_type) : this(name, allowedLevel,null,null, output_type) { }
 
         private void _defineLogWriter()
         {
-            _writer = new SimpleTextWriter(_outputDirectory, _fileName);
             switch (_outputType)
             {
                 case OutputType.Json:
@@ -156,6 +151,9 @@ namespace Haley.Log
                     break;
                 case OutputType.Text_detailed:
                     _writer = new DetailedTextLogWriter(_outputDirectory, _fileName);
+                    break;
+                case OutputType.Text_simple:
+                    _writer = new SimpleTextWriter(_outputDirectory, _fileName);
                     break;
             }
         }

@@ -124,8 +124,8 @@ namespace Haley.Abstractions
         public virtual bool IsEnabled(LogLevel logLevel)
         {
             //say, allowed level is Information (2), and the loglevel is Debug(1), then we should not write the debug information.
-            //incoming loglevel is lower than the allowed level, so we cannot allow this.
-            return (logLevel== AllowedLevel || logLevel<AllowedLevel); 
+            //incoming loglevel is lower than the allowed level, so we cannot allow this. In other words, allowed level should always be lower than the incoming log level.
+            return (logLevel== AllowedLevel || AllowedLevel < logLevel); 
         }
         
         public virtual void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
