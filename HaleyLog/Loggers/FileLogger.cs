@@ -29,6 +29,10 @@ namespace Haley.Log
         string _fileName { get; set; }
         #endregion
 
+        private BlockingCollection<LogData> _logItemQueue = new BlockingCollection<LogData>(boundedCapacity:500); //can add upto 500 lines of data but it has to be cleared first only then new data can be added.
+        private bool isConsuming = false;
+        private object consumingObject = new object();
+
         #region Private Helper Methods
         private bool checkDirectoryAccess()
         {
@@ -50,6 +54,33 @@ namespace Haley.Log
             }
         } //First step to be done.
 
+        private void ConsumeLogs()
+        {
+            try
+            {
+                lock (consumingObject) //So only one thread holds it.
+                {
+                    if (_logItemQueue.Count == 0) return; //Do not proceed as there are not items yet.
+                    isConsuming = true;
+                    bool _flag = true;
+                    while(_flag)
+                    {
+                        var _data = _logItemQueue.GetConsumingEnumerable().Take(20); //Take 20 items and then write them (if 10 items not available, it will return whatever available below 20.
+                        if (_data == null || _data.Count() == 0)
+                        {
+                            _flag = false;
+                            isConsuming = false;
+                        }
+                        _writer.Write(_data.ToList());
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                //Dont do anything yet.
+                isConsuming = false;
+            }
+        }
         #endregion
 
         #region Overridden Methods
@@ -58,10 +89,16 @@ namespace Haley.Log
             return _outputDirectory;
         }
 
-        public override void Log(ILogData data)
+        public override void Log(LogData data)
         {
             //Don't write directly using the writer. Use a producer/consumer pattern based implementation.
             //Write all log to a collection. Consumer will then consume them and write using the writer.
+            //First come basis
+            _logItemQueue.Add(data);  //Thread safe adding. Multiple collections can try to add.
+            if (!isConsuming)
+            {
+                Task.Run(() => ConsumeLogs()); //not asynchronous but on a different thread.
+            }
         }
         #endregion
 
@@ -90,12 +127,12 @@ namespace Haley.Log
             //Last Fall back preference
             if (string.IsNullOrWhiteSpace(outputDirectory))
             {
-                outputDirectory=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "HaleyLogs",AppDomain.CurrentDomain?.FriendlyName ?? "ApplicationLogs");
+                outputDirectory=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "HLogs",AppDomain.CurrentDomain?.FriendlyName ?? "ApplicationLogs");
             }
 
             if (string.IsNullOrWhiteSpace(_fileName))
             {
-                _fileName = "HaleyLog";
+                _fileName = $@"{AppDomain.CurrentDomain?.FriendlyName}_{Name}_Log";
             }
 
             _outputDirectory = outputDirectory; //Get directory

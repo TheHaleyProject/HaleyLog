@@ -2,17 +2,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Haley.Models;
 
 namespace Haley.Abstractions
 {
-    public class LogEqualityComparer : IEqualityComparer<ILogData>
+    public class LogEqualityComparer : IEqualityComparer<LogData>
     {
-        public bool Equals(ILogData x, ILogData y)
+        public bool Equals(LogData x, LogData y)
         {
             return (x.Id == y.Id);
         }
 
-        public int GetHashCode(ILogData obj)
+        public int GetHashCode(LogData obj)
         {
             return obj.GetHashCode();
         }

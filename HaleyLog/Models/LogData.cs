@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Haley.Models
 {
     [XmlRoot("BaseLog")]
-    public class LogData : ILogData
+    public class LogData
     {
         [XmlAttribute("Id")]
         public string Id { get; set; }

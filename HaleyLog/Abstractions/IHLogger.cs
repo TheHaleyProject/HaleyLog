@@ -35,7 +35,7 @@ namespace Haley.Abstractions
 
         #region Main Call
         void Log(string message, Exception exception, LogLevel log_level, EventId eventId, string title = null); //Convert into logdata.
-        void Log(ILogData data);
+        void Log(LogData data);
         #endregion
         string GetOutputLocation();
     }

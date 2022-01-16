@@ -109,7 +109,7 @@ namespace Haley.Abstractions
 
         #region Abstract Methods
         public abstract string GetOutputLocation();
-        public abstract void Log(ILogData data); //Whole magic should happen here.
+        public abstract void Log(LogData data); //Whole magic should happen here.
         #endregion
 
         #region Virtual Methods
@@ -153,7 +153,7 @@ namespace Haley.Abstractions
         }
 
         #endregion
-        protected ILogData GetLogData(string message, Exception exception, LogLevel log_level, EventId eventId, string title)
+        protected LogData GetLogData(string message, Exception exception, LogLevel log_level, EventId eventId, string title)
         {
             LogData _data = new LogData()
             {
