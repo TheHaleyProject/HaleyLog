@@ -6,6 +6,8 @@ using Haley.Enums;
 using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions;
 
 namespace Haley.Abstractions
 {
@@ -32,6 +34,7 @@ namespace Haley.Abstractions
         void Log(string message, Exception exception, LogLevel log_level, string title = null);
         void Log(string message, LogLevel log_level, string title = null);
         #endregion
+
 
         #region Main Call
         void Log(string message, Exception exception, LogLevel log_level, EventId eventId, string title = null); //Convert into logdata.

@@ -30,7 +30,7 @@ namespace HaleyLogTest
         static void localProcess1()
         {
             var _logger = LogStore.GetOrAddFileLogger("Lingam1", "haleytestLog",OutputType.Json,LogLevel.Trace);
-
+            _logger.LogCritical("Am I really facing an error??? ");
             tasks[0] = Task.Run(() =>
             {
                 for (int i = 0; i < 1000; i++)

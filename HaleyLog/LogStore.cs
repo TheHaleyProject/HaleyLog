@@ -18,7 +18,7 @@ namespace Haley.Log
         #region GENERIC METHODS
         public static IHLogger CreateLogger(Enum key, IHLogger logger)
         {
-            string _key = key.getKey();
+            string _key = key.GetKey();
             return CreateLogger(_key, logger);
         }
 
@@ -33,7 +33,7 @@ namespace Haley.Log
 
         public static IHLogger GetLogger(Enum key)
         {
-            return GetLogger(key.getKey());
+            return GetLogger(key.GetKey());
         }
 
         public static IHLogger GetLogger(string key)
@@ -47,7 +47,7 @@ namespace Haley.Log
         #region FILE LOGGERS
         public static IHLogger GetOrAddFileLogger(Enum key, string loggerName)
         {
-            return GetOrAddFileLogger(key.getKey(), loggerName);
+            return GetOrAddFileLogger(key.GetKey(), loggerName);
         }
         public static IHLogger GetOrAddFileLogger(string key, string loggerName)
         {
@@ -56,7 +56,7 @@ namespace Haley.Log
 
         public static IHLogger GetOrAddFileLogger(Enum key, string loggerName, OutputType outputype)
         {
-            return GetOrAddFileLogger(key.getKey(), loggerName, outputype, LogLevel.Information);
+            return GetOrAddFileLogger(key.GetKey(), loggerName, outputype, LogLevel.Information);
         }
         public static IHLogger GetOrAddFileLogger(string key, string loggerName, OutputType outputype)
         {
@@ -65,7 +65,7 @@ namespace Haley.Log
 
         public static IHLogger GetOrAddFileLogger(Enum key, string loggerName, OutputType outputype,LogLevel allowedLevel)
         {
-            return GetOrAddFileLogger(key.getKey(), loggerName, outputype,allowedLevel);
+            return GetOrAddFileLogger(key.GetKey(), loggerName, outputype,allowedLevel);
         }
         public static IHLogger GetOrAddFileLogger(string key, string loggerName, OutputType outputype, LogLevel allowedLevel)
         {
@@ -74,7 +74,7 @@ namespace Haley.Log
 
         public static IHLogger GetOrAddFileLogger(Enum key, string loggerName, OutputType outputype, LogLevel allowedLevel,string outputDirectory,string fileName)
         {
-            return GetOrAddFileLogger(key.getKey(), loggerName, outputype, allowedLevel,outputDirectory,fileName);
+            return GetOrAddFileLogger(key.GetKey(), loggerName, outputype, allowedLevel,outputDirectory,fileName);
         }
         public static IHLogger GetOrAddFileLogger(string key, string loggerName, OutputType outputype, LogLevel allowedLevel, string outputDirectory, string fileName)
         {
@@ -102,7 +102,7 @@ namespace Haley.Log
 
         public static void ChangeLoggerLevel(Enum key, LogLevel logLevel)
         {
-            ChangeLoggerLevel(key.getKey(), logLevel); 
+            ChangeLoggerLevel(key.GetKey(), logLevel); 
         }
 
         public static void ChangeLoggerLevel(string key, LogLevel logLevel)

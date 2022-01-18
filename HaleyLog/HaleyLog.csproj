@@ -12,7 +12,7 @@
 	<Company>Haley Project</Company>
 	<Product>Logger</Product>
 	<Description>A simple logger based on .Net Standard to integrate in C# projects. Helps to export the log to different formats including txt, json, xml</Description>
-	<Version>2.0.0</Version>
+	<Version>2.0.1</Version>
 	<AssemblyVersion>2.0.0.0</AssemblyVersion>
 	<PackageReleaseNotes>Major code change. Not compatible with previous versions. Modifications are made to core interfaces and implementations to match Microsoft.Extension.Logging.Abstractions. 
 
