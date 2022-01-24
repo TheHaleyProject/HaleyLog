@@ -15,8 +15,9 @@ using Haley.Enums;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 using System.Timers;
+using Haley.Utils;
 
-namespace Haley.Utils
+namespace Haley.Log
 {
     public sealed class FileLogger : HLoggerBase
     {
@@ -79,17 +80,17 @@ namespace Haley.Utils
             //First preference.
             if (string.IsNullOrWhiteSpace(outputDirectory))
             {
-                outputDirectory = AppDomain.CurrentDomain?.BaseDirectory;
-            }
-
-            //Second preference
-            if (string.IsNullOrWhiteSpace(outputDirectory))
-            {
                 var _entryAssembly = Assembly.GetEntryAssembly();
                 if (_entryAssembly != null)
                 {
                     outputDirectory = Path.GetDirectoryName(_entryAssembly.Location);
                 }
+            }
+
+            //Second preference
+            if (string.IsNullOrWhiteSpace(outputDirectory))
+            {
+                outputDirectory = AppDomain.CurrentDomain?.BaseDirectory;
             }
 
             //Last Fall back preference
@@ -99,7 +100,6 @@ namespace Haley.Utils
             }
 
             //Add a subfolder to the outputdirectory
-
             if (!string.IsNullOrWhiteSpace(outputDirectory))
             {
                 outputDirectory = Path.Combine(outputDirectory, "Logs");
@@ -121,7 +121,7 @@ namespace Haley.Utils
 
             if (string.IsNullOrWhiteSpace(_fileName))
             {
-                _fileName = $@"{AppDomain.CurrentDomain?.FriendlyName}_{DateTime.Now.ToString("yyyy-MM-dd")}"; 
+                _fileName = $@"{AppDomain.CurrentDomain?.FriendlyName ?? "AppLog"}_{DateTime.Now.ToString("yyyy-MM-dd")}"; 
                 //If the filename is not provided by default, generate a file name with the friendlyname of the current domain
             }
 
