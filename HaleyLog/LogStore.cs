@@ -44,6 +44,10 @@ namespace Haley.Log
         #endregion
 
         #region FILE LOGGERS
+        public static IHLogger GetOrAddFileLogger(string key, string loggerName,FileLoggerOptions options)
+        {
+            return GetOrAddFileLogger(key, loggerName, options.Type,options.AllowedLogLevel,options.OutputDirectoryName, options.FileName);
+        }
         public static IHLogger GetOrAddFileLogger(Enum key, string loggerName)
         {
             return GetOrAddFileLogger(key.GetKey(), loggerName);

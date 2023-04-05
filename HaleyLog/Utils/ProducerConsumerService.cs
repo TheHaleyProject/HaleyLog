@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using System.Reflection;
 using System.Timers;
 using Trdng =System.Threading;
+using System.Diagnostics;
 
 namespace Haley.Utils
 {
@@ -23,10 +24,10 @@ namespace Haley.Utils
     {
         public string Id { get;  }
         public ILogWriter Writer { get; }
-        private object consumerLock = new object();
-        private object producerLock = new object();
+        private object _consumerLock = new object();
+        private object _producerLock = new object();
         Timer _consumerMonitor = new Timer(15000) { AutoReset = false }; //Every 8 seconds.
-        private Trdng.Thread activeConsumerthread;
+        private Trdng.Thread _activeConsumerthread;
         public BlockingCollection<LogData> LogItemsQueue { get; private set; }
         /// <summary>
         /// Produce should call the consume as well
@@ -37,18 +38,18 @@ namespace Haley.Utils
             //Different loggers will try to add data in this consumer service. 
             LogItemsQueue.Add(data);  //Thread safe adding. Multiple collections can try to add.
 
-            if (activeConsumerthread == null || !activeConsumerthread.IsAlive) //Either null or not alive, then create new thread.
+            if (_activeConsumerthread == null || !_activeConsumerthread.IsAlive) //Either null or not alive, then create new thread.
             {
-                lock(producerLock)
+                lock(_producerLock)
                 {
-                    if (activeConsumerthread == null || !activeConsumerthread.IsAlive)
+                    if (_activeConsumerthread == null || !_activeConsumerthread.IsAlive)
                     {
                         Trdng.Thread newThread = new Trdng.Thread(new Trdng.ThreadStart(() =>
                         {
                             Consume();
                         }));
-                        activeConsumerthread = newThread;
-                        activeConsumerthread.Start(); //Start the thread.
+                        _activeConsumerthread = newThread;
+                        _activeConsumerthread.Start(); //Start the thread.
                     }
                 }
             }
@@ -60,9 +61,9 @@ namespace Haley.Utils
         {
             try
             {
-                //consumerLock is a local logger variable. This lock ensures that same logger doesn't try to access this method through different threads.
+                //_consumerLock is a local logger variable. This lock ensures that same logger doesn't try to access this method through different threads.
                 //But, different loggers will have their own method consumption locally.
-                lock (consumerLock) //So only one thread enters processing. (for each logger).
+                lock (_consumerLock) //So only one thread enters processing. (for each logger).
                 {
                     List<LogData> _data = new List<LogData>();
                     Action writeLog = () =>
@@ -114,11 +115,18 @@ namespace Haley.Utils
         private void _consumerMonitorElapsed(object sender, ElapsedEventArgs e)
         {
             //TODO: Check if consumer is working properly or stuck in some kind of error.
-            if (LogItemsQueue.Count == 0 && activeConsumerthread != null )
+            if (LogItemsQueue.Count == 0 && _activeConsumerthread != null )
             {
                 //After 15 seconds of last log message, we are still active on consumer thread which is not correct.
                 //abort active consumer thread.
-                activeConsumerthread.Abort(); //VERIFY IF THIS IS REALLY REQUIRED. SOMETIMES, A PROCESS MIGHT TAKE MORE TIME TO COMPLETE. SO NO NEED TO ABORT THE THREAD.
+                try
+                {
+                    _activeConsumerthread.Abort(); //VERIFY IF THIS IS REALLY REQUIRED. SOMETIMES, A PROCESS MIGHT TAKE MORE TIME TO COMPLETE. SO NO NEED TO ABORT THE THREAD.
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.ToString());
+                }
             }
         }
 
