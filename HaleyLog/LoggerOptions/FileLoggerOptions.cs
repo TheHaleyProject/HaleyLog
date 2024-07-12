@@ -8,11 +8,12 @@ namespace Haley.Models
 {
     public sealed class FileLoggerOptions
     {
-        public string OutputDirectoryName { get; set; }
+        public string OutputDirectory { get; set; }
         public string FileName { get; set; }
         public bool ShouldGenerateEachDay { get; set; }
-        public LogLevel AllowedLogLevel { get; set; }
-        public OutputType Type { get; set; }
-        public FileLoggerOptions() { Type = OutputType.Text_simple;AllowedLogLevel = LogLevel.Information; }
+        public LogLevel AllowedLogLevel { get; set; }= LogLevel.Information;
+        public OutputType Type { get; set; } = OutputType.Text_simple;
+        public DirectoryPriority DirPriority { get; set; } = DirectoryPriority.LocalAppData;
+        public FileLoggerOptions() { }
     }
 }

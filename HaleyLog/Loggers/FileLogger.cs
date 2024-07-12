@@ -75,50 +75,58 @@ namespace Haley.Log
         #endregion
 
         #region Initiations
-        private bool ProcessOutputDirectory(string outputDirectory)
+        private bool ProcessOutputDirectory(FileLoggerOptions options)
         {
+            if (options.DirPriority == DirectoryPriority.LocalAppData) {
+                //Last Fall back preference
+                if (string.IsNullOrWhiteSpace(options.OutputDirectory)) {
+                    options.OutputDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Haley", AppDomain.CurrentDomain?.FriendlyName ?? "AppLogs");
+                }
+            }
+
             //First preference.
-            if (string.IsNullOrWhiteSpace(outputDirectory))
+            if (string.IsNullOrWhiteSpace(options.OutputDirectory))
             {
                 var _entryAssembly = Assembly.GetEntryAssembly();
                 if (_entryAssembly != null)
                 {
-                    outputDirectory = Path.GetDirectoryName(_entryAssembly.Location);
+                    options.OutputDirectory = Path.GetDirectoryName(_entryAssembly.Location);
                 }
             }
 
             //Second preference
-            if (string.IsNullOrWhiteSpace(outputDirectory))
+            if (string.IsNullOrWhiteSpace(options.OutputDirectory))
             {
-                outputDirectory = AppDomain.CurrentDomain?.BaseDirectory;
+                options.OutputDirectory = AppDomain.CurrentDomain?.BaseDirectory;
             }
 
             //Last Fall back preference
-            if (string.IsNullOrWhiteSpace(outputDirectory))
+            if (string.IsNullOrWhiteSpace(options.OutputDirectory))
             {
-                outputDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "HLogs", AppDomain.CurrentDomain?.FriendlyName ?? "ApplicationLogs");
+                options.OutputDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Haley", AppDomain.CurrentDomain?.FriendlyName ?? "AppLogs");
             }
 
             //Add a subfolder to the outputdirectory
-            if (!string.IsNullOrWhiteSpace(outputDirectory))
+            if (!string.IsNullOrWhiteSpace(options.OutputDirectory))
             {
-                outputDirectory = Path.Combine(outputDirectory, "Logs");
+                options.OutputDirectory = Path.Combine(options.OutputDirectory, "Logs");
             }
-            _outputDirectory = outputDirectory; //Get directory
+            _outputDirectory = options.OutputDirectory; //Get directory
 
             checkDirectoryAccess();
             if (string.IsNullOrWhiteSpace(_outputDirectory)) return false;
             return true;
         }
 
-        public FileLogger(string name,LogLevel allowedLevel, string outputDirectory,string file_name, OutputType output_type) :base(name ?? "HLogger",allowedLevel)
+        public FileLogger(string name,FileLoggerOptions options) :base(name ?? "HLogger",options.AllowedLogLevel)
         {
-            _outputType = output_type;
-            if (!ProcessOutputDirectory(outputDirectory))
+            _outputType = options.Type;
+            if (!ProcessOutputDirectory(options))
             {
                 throw new ArgumentException($@"Unable to process output directory {_outputDirectory}");
             }
 
+            _fileName = options.FileName;
             if (string.IsNullOrWhiteSpace(_fileName))
             {
                 _fileName = $@"{AppDomain.CurrentDomain?.FriendlyName ?? "AppLog"}_{DateTime.Now.ToString("yyyy-MM-dd")}"; 
@@ -137,8 +145,6 @@ namespace Haley.Log
             _producerService = _targetServices[_writer.OutputFilePath]; //This item is just a reference to the same static item.
         }
        
-        public FileLogger(string name, LogLevel allowedLevel,OutputType output_type) : this(name, allowedLevel,null,null, output_type) { }
-
         private void _defineLogWriter()
         {
             switch (_outputType)

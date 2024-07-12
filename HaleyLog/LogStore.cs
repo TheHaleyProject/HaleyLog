@@ -46,7 +46,7 @@ namespace Haley.Log
         #region FILE LOGGERS
         public static IHLogger GetOrAddFileLogger(string key, string loggerName,FileLoggerOptions options)
         {
-            return GetOrAddFileLogger(key, loggerName, options.Type,options.AllowedLogLevel,options.OutputDirectoryName, options.FileName);
+            return GetOrAddFileLoggerInternal(key, loggerName, options);
         }
         public static IHLogger GetOrAddFileLogger(Enum key, string loggerName)
         {
@@ -78,21 +78,22 @@ namespace Haley.Log
         }
         public static IHLogger GetOrAddFileLogger(string key, string loggerName, OutputType outputype, LogLevel allowedLevel, string outputDirectory, string fileName)
         {
+            return GetOrAddFileLoggerInternal(key,loggerName,new FileLoggerOptions() { AllowedLogLevel = allowedLevel,FileName = fileName,OutputDirectory = outputDirectory,Type = outputype });
+        }
+
+        public static IHLogger GetOrAddFileLoggerInternal(string key, string loggerName, FileLoggerOptions options) {
             var _logger = GetLogger(key);
-            if (_logger == null)
-            {
+            if (_logger == null) {
                 var _info = GetOutputInfo<FileLogger>(); //Because we are trying to create a file logger.
-                if (string.IsNullOrWhiteSpace(outputDirectory) && _info != null && ! string.IsNullOrWhiteSpace(_info.Directory))
-                {
-                    outputDirectory = Path.GetDirectoryName(_info.Directory);
+                if (string.IsNullOrWhiteSpace(options.OutputDirectory) && _info != null && !string.IsNullOrWhiteSpace(_info.Directory)) {
+                    options.OutputDirectory = Path.GetDirectoryName(_info.Directory);
                 }
 
-                if (string.IsNullOrWhiteSpace(fileName) && _info != null && !string.IsNullOrWhiteSpace(_info.FileName))
-                {
-                    fileName = Path.GetFileNameWithoutExtension(_info.FileName);
+                if (string.IsNullOrWhiteSpace(options.FileName) && _info != null && !string.IsNullOrWhiteSpace(_info.FileName)) {
+                    options.FileName = Path.GetFileNameWithoutExtension(_info.FileName);
                 }
 
-                _logger = CreateLogger(key, new FileLogger(loggerName ?? "HLog", allowedLevel, outputDirectory, fileName, outputype));
+                _logger = CreateLogger(key, new FileLogger(loggerName ?? "HLog", options));
             }
             return _logger;
         }
