@@ -75,42 +75,48 @@ namespace Haley.Log
         #endregion
 
         #region Initiations
+      
+        string GetSubFolder() {
+            var asmly = Assembly.GetEntryAssembly();
+            return asmly.GetInfo(AssemblyInfo.Configuration) + "_" + asmly.GetInfo(AssemblyInfo.Version);
+        }
+
         private bool ProcessOutputDirectory(FileLoggerOptions options)
         {
             if (options.DirPriority == DirectoryPriority.LocalAppData) {
                 //Last Fall back preference
                 if (string.IsNullOrWhiteSpace(options.OutputDirectory)) {
-                    options.OutputDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Haley", AppDomain.CurrentDomain?.FriendlyName ?? "AppLogs");
+                    options.OutputDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HaleyLogs", AppDomain.CurrentDomain?.FriendlyName ?? "AppLogs", GetSubFolder() ?? "Default" );
                 }
             }
 
-            //First preference.
+            //First preference (ENTRY ASSEMBLY FOLDER).
             if (string.IsNullOrWhiteSpace(options.OutputDirectory))
             {
                 var _entryAssembly = Assembly.GetEntryAssembly();
                 if (_entryAssembly != null)
                 {
-                    options.OutputDirectory = Path.GetDirectoryName(_entryAssembly.Location);
+                    options.OutputDirectory = Path.Combine(Path.GetDirectoryName(_entryAssembly.Location), "Logs");
                 }
             }
 
             //Second preference
             if (string.IsNullOrWhiteSpace(options.OutputDirectory))
             {
-                options.OutputDirectory = AppDomain.CurrentDomain?.BaseDirectory;
+                options.OutputDirectory = Path.Combine(AppDomain.CurrentDomain?.BaseDirectory, "Logs"); ;
             }
 
             //Last Fall back preference
             if (string.IsNullOrWhiteSpace(options.OutputDirectory))
             {
-                options.OutputDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Haley", AppDomain.CurrentDomain?.FriendlyName ?? "AppLogs");
+                options.OutputDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Haley", AppDomain.CurrentDomain?.FriendlyName ?? "AppLogs", GetSubFolder() ?? "Default");
             }
 
-            //Add a subfolder to the outputdirectory
-            if (!string.IsNullOrWhiteSpace(options.OutputDirectory))
-            {
-                options.OutputDirectory = Path.Combine(options.OutputDirectory, "Logs");
-            }
+            ////Add a subfolder to the outputdirectory
+            //if (!string.IsNullOrWhiteSpace(options.OutputDirectory))
+            //{
+            //    options.OutputDirectory = Path.Combine(options.OutputDirectory, "Logs");
+            //}
             _outputDirectory = options.OutputDirectory; //Get directory
 
             checkDirectoryAccess();
