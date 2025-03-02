@@ -10,7 +10,7 @@ using System.Diagnostics;
 
 namespace Haley.Abstractions
 {
-    public abstract class HLoggerBase : IHLogger, IDisposable
+    public abstract class MicroLoggerBase : IMicroLogger, IDisposable
     {
         public string Name { get; }
         public LogLevel AllowedLevel { get; protected set; }
@@ -168,7 +168,7 @@ namespace Haley.Abstractions
             return _data;
         }
         #region Initiations
-        public HLoggerBase(string name,LogLevel allowed_level)
+        public MicroLoggerBase(string name,LogLevel allowed_level)
         { 
             Name = name;
             //Allowed level can be changed during runtime

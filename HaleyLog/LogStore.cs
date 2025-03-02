@@ -13,18 +13,18 @@ namespace Haley.Log
 {
     public static class LogStore
     {
-        private static ConcurrentDictionary<string, IHLogger> _loggers = new ConcurrentDictionary<string, IHLogger>();
+        private static ConcurrentDictionary<string, IMicroLogger> _loggers = new ConcurrentDictionary<string, IMicroLogger>();
 
 
         private static ConcurrentDictionary<Type, OutputInfo> _outputPaths = new ConcurrentDictionary<Type, OutputInfo>(); //For each file logger type, we can set a common output path.
 
         #region GENERIC METHODS
-        public static IHLogger CreateLogger(Enum key, IHLogger logger)
+        public static IMicroLogger CreateLogger(Enum key, IMicroLogger logger)
         {
             string _key = key.GetKey();
             return CreateLogger(_key, logger);
         }
-        public static IHLogger CreateLogger(string key, IHLogger logger)
+        public static IMicroLogger CreateLogger(string key, IMicroLogger logger)
         {
             if (!_loggers.ContainsKey(key))
             {
@@ -32,11 +32,11 @@ namespace Haley.Log
             }
             return _loggers[key];
         }
-        public static IHLogger GetLogger(Enum key)
+        public static IMicroLogger GetLogger(Enum key)
         {
             return GetLogger(key.GetKey());
         }
-        public static IHLogger GetLogger(string key)
+        public static IMicroLogger GetLogger(string key)
         {
             if (_loggers.ContainsKey(key)) return _loggers[key];
             return null;
@@ -44,44 +44,44 @@ namespace Haley.Log
         #endregion
 
         #region FILE LOGGERS
-        public static IHLogger GetOrAddFileLogger(string key, string loggerName,FileLoggerOptions options)
+        public static IMicroLogger GetOrAddFileLogger(string key, string loggerName,FileLoggerOptions options)
         {
             return GetOrAddFileLoggerInternal(key, loggerName, options);
         }
-        public static IHLogger GetOrAddFileLogger(Enum key, string loggerName)
+        public static IMicroLogger GetOrAddFileLogger(Enum key, string loggerName)
         {
             return GetOrAddFileLogger(key.GetKey(), loggerName);
         }
-        public static IHLogger GetOrAddFileLogger(string key, string loggerName)
+        public static IMicroLogger GetOrAddFileLogger(string key, string loggerName)
         {
             return GetOrAddFileLogger(key, loggerName, OutputType.Text_simple);
         }
-        public static IHLogger GetOrAddFileLogger(Enum key, string loggerName, OutputType outputype)
+        public static IMicroLogger GetOrAddFileLogger(Enum key, string loggerName, OutputType outputype)
         {
             return GetOrAddFileLogger(key.GetKey(), loggerName, outputype, LogLevel.Information);
         }
-        public static IHLogger GetOrAddFileLogger(string key, string loggerName, OutputType outputype)
+        public static IMicroLogger GetOrAddFileLogger(string key, string loggerName, OutputType outputype)
         {
             return GetOrAddFileLogger(key, loggerName, outputype,LogLevel.Information);
         }
-        public static IHLogger GetOrAddFileLogger(Enum key, string loggerName, OutputType outputype,LogLevel allowedLevel)
+        public static IMicroLogger GetOrAddFileLogger(Enum key, string loggerName, OutputType outputype,LogLevel allowedLevel)
         {
             return GetOrAddFileLogger(key.GetKey(), loggerName, outputype,allowedLevel);
         }
-        public static IHLogger GetOrAddFileLogger(string key, string loggerName, OutputType outputype, LogLevel allowedLevel)
+        public static IMicroLogger GetOrAddFileLogger(string key, string loggerName, OutputType outputype, LogLevel allowedLevel)
         {
             return GetOrAddFileLogger(key,loggerName, outputype, allowedLevel, null,null);
         }
-        public static IHLogger GetOrAddFileLogger(Enum key, string loggerName, OutputType outputype, LogLevel allowedLevel,string outputDirectory,string fileName)
+        public static IMicroLogger GetOrAddFileLogger(Enum key, string loggerName, OutputType outputype, LogLevel allowedLevel,string outputDirectory,string fileName)
         {
             return GetOrAddFileLogger(key.GetKey(), loggerName, outputype, allowedLevel,outputDirectory,fileName);
         }
-        public static IHLogger GetOrAddFileLogger(string key, string loggerName, OutputType outputype, LogLevel allowedLevel, string outputDirectory, string fileName)
+        public static IMicroLogger GetOrAddFileLogger(string key, string loggerName, OutputType outputype, LogLevel allowedLevel, string outputDirectory, string fileName)
         {
             return GetOrAddFileLoggerInternal(key,loggerName,new FileLoggerOptions() { AllowedLogLevel = allowedLevel,FileName = fileName,OutputDirectory = outputDirectory,Type = outputype });
         }
 
-        public static IHLogger GetOrAddFileLoggerInternal(string key, string loggerName, FileLoggerOptions options) {
+        public static IMicroLogger GetOrAddFileLoggerInternal(string key, string loggerName, FileLoggerOptions options) {
             var _logger = GetLogger(key);
             if (_logger == null) {
                 var _info = GetOutputInfo<FileLogger>(); //Because we are trying to create a file logger.
@@ -105,7 +105,7 @@ namespace Haley.Log
             //this changes log level of all the internal loggers.
             foreach (var logger in _loggers)
             {
-                if (logger.Value is HLoggerBase hbase)
+                if (logger.Value is MicroLoggerBase hbase)
                 {
                     hbase.SetAllowedLevel(logLevel);
                 }
@@ -119,7 +119,7 @@ namespace Haley.Log
         {
             if (_loggers.ContainsKey(key))
             {
-                if (_loggers[key] is HLoggerBase hlog)
+                if (_loggers[key] is MicroLoggerBase hlog)
                 {
                     hlog.SetAllowedLevel(logLevel);
                 }

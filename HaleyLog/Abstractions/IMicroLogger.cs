@@ -11,7 +11,7 @@ using Microsoft.Extensions;
 
 namespace Haley.Abstractions
 {
-    public interface IHLogger :ILogger
+    public interface IMicroLogger :ILogger
     {
         string Name { get; }
         LogLevel AllowedLevel { get; }

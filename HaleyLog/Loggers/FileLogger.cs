@@ -1,25 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using System.Xml;
-using System.IO;
-using System.Security.AccessControl;
-using Haley.Abstractions;
-using Haley.Models;
-using System.ComponentModel;
-using System.Collections.Concurrent;
+﻿using Haley.Abstractions;
 using Haley.Enums;
-using Microsoft.Extensions.Logging;
-using System.Reflection;
-using System.Timers;
+using Haley.Models;
 using Haley.Utils;
+using System;
+using System.Collections.Concurrent;
+using System.IO;
+using System.Reflection;
 
 namespace Haley.Log
 {
-    public sealed class FileLogger : HLoggerBase
+    public sealed class FileLogger : MicroLoggerBase
     {
         //If a logger of a certain output (say JSON) is writing to a file, then another logger of output type (say Text) should not be encouraged.
         //if two loggers tri
