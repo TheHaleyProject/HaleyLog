@@ -12,7 +12,7 @@
 	<Company>Haley Project</Company>
 	<Product>Logger</Product>
 	<Description>A simple logger based on .Net Standard to integrate in C# projects. Helps to export the log to different formats including txt, json, xml</Description>
-	<Version>2.0.26</Version>
+	<Version>2.0.27</Version>
 	<AssemblyVersion>2.0.0.0</AssemblyVersion>
 	<PackageReleaseNotes>implemented File Log provider to be used with .NET 6 api.
 
@@ -55,7 +55,7 @@
     </When>
     <Otherwise>
      <ItemGroup>
-       <PackageReference Include="Haley.Extensions" Version="2.3.9" />
+       <PackageReference Include="Haley.Extensions" Version="2.3.10" />
 	 </ItemGroup>
     </Otherwise>
 </Choose>  
