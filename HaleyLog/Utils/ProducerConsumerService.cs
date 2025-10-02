@@ -109,8 +109,8 @@ namespace Haley.Utils
         private void ProcessTimers()
         {
             //Restart consumer.
-            _consumerMonitor.Stop();
-            _consumerMonitor.Start();
+            _consumerMonitor?.Stop();
+            _consumerMonitor?.Start();
         }
 
         private void _consumerMonitorElapsed(object sender, ElapsedEventArgs e)
