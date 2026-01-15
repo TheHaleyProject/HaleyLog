@@ -7,24 +7,18 @@
 	<AssemblyOriginatorKeyFile>HaleyProject.snk</AssemblyOriginatorKeyFile>
 	<RootNamespace>Haley.Log</RootNamespace>
 	<AssemblyName>Haley.Log</AssemblyName>
-    <LangVersion>10.0</LangVersion>
-    <Nullable>enable</Nullable>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	<Authors>Lingam</Authors>
-	<Company>Haley Project</Company>
-	<Product>Logger</Product>
+	<Product>Haley Logger</Product>
 	<Description>A simple logger based on .Net Standard to integrate in C# projects. Helps to export the log to different formats including txt, json, xml</Description>
 	<Version>$(HaleyLogVersion)</Version>
 	<AssemblyVersion>2.0.0.0</AssemblyVersion>
 	<PackageReleaseNotes>implemented File Log provider to be used with .NET 6 api.
-
-</PackageReleaseNotes>
+    </PackageReleaseNotes>
 	<FileVersion>2.0.0.0</FileVersion>
 	<PackageIcon>Haley.png</PackageIcon>
 	  <IncludeSymbols>true</IncludeSymbols>
 	  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
-	  <Copyright>@Haley 2024</Copyright>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
